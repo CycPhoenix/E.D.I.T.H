@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E.D.I.T.H — Command Center</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;500&display=swap');
+
+    :root {
+      --amber: #FFB347;
+      --amber-dim: #cc8a2a;
+      --amber-glow: rgba(255,179,71,0.15);
+      --amber-border: rgba(255,179,71,0.3);
+      --bg: #090909;
+      --bg2: #0e0e0e;
+      --bg3: #141414;
+      --text: #e8e0d0;
+      --text-dim: #7a7060;
+      --green: #39ff8a;
+      --red: #ff4444;
+      --blue: #4fc3f7;
+      --purple: #c084fc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,179,71,0.012) 2px, rgba(255,179,71,0.012) 4px);
+      pointer-events: none; z-index: 999;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(rgba(255,179,71,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,179,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,9,9,0.95);
+      border-bottom: 1px solid var(--amber-border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; backdrop-filter: blur(10px);
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      border: 2px solid var(--amber); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 800;
+      color: var(--amber); box-shadow: 0 0 10px rgba(255,179,71,0.3);
+    }
+    .logo-text { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 600; color: var(--amber); letter-spacing: 3px; }
+    .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-top: 2px; }
+
+    .header-right { display: flex; align-items: center; gap: 24px; }
+    .status-badge { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 1px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 4px var(--green);}50%{opacity:0.4;box-shadow:none;} }
+    .header-time { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--amber); letter-spacing: 2px; }
+    .divider { width: 1px; height: 20px; background: var(--amber-border); }
+
+    /* ── NAV TABS ── */
+    .nav-bar {
+      position: sticky; top: 60px; z-index: 90;
+      background: rgba(9,9,9,0.95);
+      border-bottom: 1px solid rgba(255,179,71,0.08);
+      padding: 0 32px;
+      display: flex; align-items: center; gap: 4px;
+      height: 48px; backdrop-filter: blur(10px);
+    }
+
+    .nav-tab {
+      font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      letter-spacing: 2px; padding: 6px 18px; border-radius: 6px;
+      border: 1px solid transparent; cursor: pointer;
+      color: var(--text-dim); background: transparent;
+      transition: all 0.2s; text-transform: uppercase;
+    }
+    .nav-tab:hover { color: var(--amber); border-color: var(--amber-border); }
+    .nav-tab.active { color: var(--amber); background: var(--amber-glow); border-color: var(--amber-border); }
+
+    /* ── MAIN ── */
+    main { position: relative; z-index: 1; padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);} }
+
+    /* ── SHARED COMPONENTS ── */
+    .card {
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
+      border-radius: 12px; padding: 22px; position: relative; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--amber-border); }
+
+    .card-title {
+      font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600;
+      color: var(--amber); letter-spacing: 2px; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-tag {
+      font-size: 9px; background: var(--amber-glow); border: 1px solid var(--amber-border);
+      color: var(--amber); padding: 2px 8px; border-radius: 4px; letter-spacing: 1px;
+    }
+    .card-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+    .card-value { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 600; color: var(--amber); }
+    .card-sub { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+
+    .corner-tl { position: absolute; top: 8px; left: 8px; width: 12px; height: 12px; border-top: 1px solid var(--amber); border-left: 1px solid var(--amber); }
+    .corner-br { position: absolute; bottom: 8px; right: 8px; width: 12px; height: 12px; border-bottom: 1px solid var(--amber); border-right: 1px solid var(--amber); }
+
+    .stat-card { background: var(--bg2); border: 1px solid rgba(255,179,71,0.12); border-radius: 12px; padding: 22px; position: relative; overflow: hidden; }
+    .stat-card::after { content:''; position:absolute; bottom:0;left:0;right:0; height:2px; background:linear-gradient(90deg,var(--amber-dim),transparent); }
+
+    .stat-change { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 8px; padding: 2px 8px; border-radius: 20px; }
+    .stat-change.up { background: rgba(57,255,138,0.1); color: var(--green); }
+    .stat-change.down { background: rgba(255,68,68,0.1); color: var(--red); }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-top: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+    .grid-2e { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ── MORNING BRIEF ── */
+    .morning-brief {
+      background: linear-gradient(135deg, rgba(255,179,71,0.08), rgba(255,179,71,0.03));
+      border: 1px solid var(--amber-border); border-radius: 12px;
+      padding: 20px 28px; margin-bottom: 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .morning-brief::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:var(--amber); box-shadow:0 0 12px var(--amber); }
+    .brief-left h2 { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--amber); letter-spacing: 3px; margin-bottom: 6px; }
+    .brief-message { font-size: 15px; color: var(--text); font-weight: 300; }
+    .brief-message span { color: var(--amber); font-weight: 500; }
+    .brief-right { display: flex; gap: 24px; text-align: center; }
+    .brief-stat-val { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 600; color: var(--amber); }
+    .brief-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+    /* ── TASKS ── */
+    .task-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,179,71,0.06); cursor: pointer; transition: opacity 0.18s ease; }
+    .task-item:last-child { border-bottom: none; }
+    .task-check { width: 16px; height: 16px; border: 1px solid var(--amber-border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+    .task-check.done { background: var(--amber); border-color: var(--amber); }
+    .task-check.done::after { content: '✓'; font-size: 10px; color: #000; font-weight: bold; }
+    .task-text { flex: 1; font-size: 13px; color: var(--text); }
+    .task-text.done { text-decoration: line-through; color: var(--text-dim); }
+    .task-badge { font-size: 9px; padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; }
+    .badge-high { background: rgba(255,68,68,0.15); color: var(--red); }
+    .badge-med  { background: rgba(255,179,71,0.15); color: var(--amber); }
+    .badge-low  { background: rgba(79,195,247,0.15); color: var(--blue); }
+
+    /* ── CALENDAR ── */
+    .event-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,179,71,0.06); }
+    .event-item:last-child { border-bottom: none; }
+    .event-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber); width: 48px; flex-shrink: 0; }
+    .event-bar { width: 2px; height: 32px; border-radius: 1px; flex-shrink: 0; }
+    .event-title { font-size: 13px; color: var(--text); }
+    .event-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ── KPI BARS ── */
+    .kpi-row { margin-bottom: 14px; }
+    .kpi-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+    .kpi-label { color: var(--text-dim); }
+    .kpi-val { color: var(--amber); font-family: 'Share Tech Mono', monospace; }
+    .kpi-bar { height: 4px; background: rgba(255,179,71,0.1); border-radius: 2px; overflow: hidden; }
+    .kpi-fill { height: 100%; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); border-radius: 2px; }
+
+    /* ── AGENT CARDS ── */
+    .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .agent-card { background: var(--bg3); border: 1px solid rgba(255,179,71,0.1); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+    .agent-avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .agent-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .agent-role { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+    .agent-status { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 9px; font-family: 'Share Tech Mono', monospace; color: var(--green); }
+    .agent-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+    /* ── CONTENT ITEMS ── */
+    .content-item { background: var(--bg3); border: 1px solid rgba(255,179,71,0.08); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; }
+    .content-num { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--amber-dim); width: 20px; flex-shrink: 0; margin-top: 1px; }
+    .content-text { font-size: 12px; color: var(--text); line-height: 1.5; flex: 1; }
+    .content-tag { font-size: 9px; background: rgba(79,195,247,0.1); color: var(--blue); padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
+
+    /* ─── PIPELINE SPECIFIC ─── */
+    .project-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,179,71,0.06);
+    }
+    .project-row:last-child { border-bottom: none; }
+    .project-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .project-name { font-size: 13px; color: var(--text); font-weight: 500; }
+    .project-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .project-progress { flex: 1; }
+    .prog-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; }
+    .prog-label { color: var(--text-dim); }
+    .prog-val { color: var(--amber); font-family: 'Share Tech Mono', monospace; }
+    .prog-bar { height: 5px; background: rgba(255,179,71,0.1); border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; }
+    .proj-badge { font-size: 9px; padding: 3px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; flex-shrink: 0; }
+    .badge-inprog { background: rgba(79,195,247,0.15); color: var(--blue); }
+    .badge-plan { background: rgba(255,179,71,0.15); color: var(--amber); }
+    .badge-done { background: rgba(57,255,138,0.15); color: var(--green); }
+    .badge-block { background: rgba(255,68,68,0.15); color: var(--red); }
+
+    /* ─── AGENTS PAGE SPECIFIC ─── */
+    .agent-detail-card {
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
+      border-radius: 12px; padding: 22px; position: relative;
+      transition: border-color 0.2s;
+    }
+    .agent-detail-card:hover { border-color: var(--amber-border); }
+    .agent-detail-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .agent-detail-avatar { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; }
+    .agent-detail-name { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 1px; }
+    .agent-detail-role { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+    .agent-online { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--green); font-family: 'Share Tech Mono', monospace; margin-left: auto; }
+    .agent-cap-list { margin-top: 12px; }
+    .agent-cap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); padding: 5px 0; }
+    .agent-cap::before { content: '▸'; color: var(--amber); font-size: 10px; }
+    .agent-last { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,179,71,0.06); font-size: 11px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+    .agent-last span { color: var(--amber); }
+
+    /* ─── RESEARCH PAGE ─── */
+    .research-item {
+      background: var(--bg3); border: 1px solid rgba(255,179,71,0.08);
+      border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .research-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .research-title { font-size: 13px; font-weight: 500; color: var(--text); }
+    .research-date { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
+    .research-summary { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+    .research-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .research-tag { font-size: 9px; padding: 2px 8px; border-radius: 4px; }
+
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .search-input {
+      flex: 1; background: var(--bg3); border: 1px solid rgba(255,179,71,0.2);
+      border-radius: 8px; padding: 10px 16px; color: var(--text);
+      font-family: 'Share Tech Mono', monospace; font-size: 12px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--amber); }
+    .search-input::placeholder { color: var(--text-dim); }
+    .search-btn {
+      background: var(--amber-glow); border: 1px solid var(--amber-border);
+      color: var(--amber); font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; letter-spacing: 2px; padding: 10px 20px;
+      border-radius: 8px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
+    }
+    .search-btn:hover { background: rgba(255,179,71,0.25); box-shadow: 0 0 10px rgba(255,179,71,0.2); }
+
+    /* ─── CONTENT PAGE SPECIFIC ─── */
+    .content-full-card {
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
+      border-radius: 12px; padding: 20px; margin-bottom: 14px;
+      position: relative; transition: border-color 0.2s;
+    }
+    .content-full-card:hover { border-color: var(--amber-border); }
+    .content-full-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .content-full-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .content-status-badge { font-size: 9px; padding: 3px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
+    .s-idea     { background: rgba(122,112,96,0.2); color: var(--text-dim); }
+    .s-script   { background: rgba(255,179,71,0.15); color: var(--amber); }
+    .s-filming  { background: rgba(192,132,252,0.15); color: var(--purple); }
+    .s-editing  { background: rgba(79,195,247,0.15); color: var(--blue); }
+    .s-posted   { background: rgba(57,255,138,0.15); color: var(--green); }
+    .content-hook { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 10px; line-height: 1.5; }
+    .content-hook::before { content: '"'; color: var(--amber); }
+    .content-hook::after { content: '"'; color: var(--amber); }
+    .content-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+    .content-platform { font-size: 9px; padding: 2px 8px; border-radius: 4px; }
+    .p-ig   { background: rgba(255,68,68,0.1); color: #f472b6; }
+    .p-tt   { background: rgba(255,68,68,0.1); color: var(--red); }
+    .p-li   { background: rgba(79,195,247,0.1); color: var(--blue); }
+    .p-yt   { background: rgba(255,68,68,0.12); color: #ff6b6b; }
+    .content-date { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; margin-left: auto; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center; padding: 36px 20px; margin: 8px 0;
+      border: 1px dashed rgba(255,179,71,0.15); border-radius: 8px;
+      background: rgba(255,179,71,0.02);
+    }
+    .empty-icon { font-size: 26px; margin-bottom: 10px; opacity: 0.4; }
+    .empty-msg {
+      font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      color: var(--text-dim); letter-spacing: 1px;
+    }
+    .empty-msg span { color: var(--amber); }
+
+    /* ─── TASKS FULL PAGE ─── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 600; color: var(--amber); letter-spacing: 3px; }
+    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,179,71,0.2);
+      background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--amber-border); color: var(--amber); }
+    .filter-btn.active { background: var(--amber-glow); border-color: var(--amber-border); color: var(--amber); }
+    .tasks-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .task-stat-box { background: var(--bg2); border: 1px solid rgba(255,179,71,0.1); border-radius: 10px; padding: 16px; text-align: center; }
+    .task-stat-num { font-family: 'Orbitron', monospace; font-size: 24px; color: var(--amber); }
+    .task-stat-lbl { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-top: 4px; font-family: 'Share Tech Mono', monospace; }
+    .task-full-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.08);
+      cursor: pointer; transition: border-color 0.2s, opacity 0.18s;
+    }
+    .task-full-item:hover { border-color: var(--amber-border); }
+    .task-full-check { width: 18px; height: 18px; border: 1px solid var(--amber-border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: background 0.2s; }
+    .task-full-check.done { background: var(--amber); border-color: var(--amber); }
+    .task-full-check.done::after { content: '✓'; font-size: 11px; color: #000; font-weight: bold; }
+    .task-full-body { flex: 1; min-width: 0; }
+    .task-full-name { font-size: 13px; color: var(--text); font-weight: 500; }
+    .task-full-name.done { text-decoration: line-through; color: var(--text-dim); }
+    .task-full-meta { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+    .task-cat { font-size: 9px; padding: 2px 8px; border-radius: 4px; background: rgba(255,179,71,0.08); color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+    .task-due { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+    .task-due.overdue { color: var(--red); }
+
+    /* ─── CALENDAR FULL PAGE ─── */
+    .cal-connect { background: rgba(255,179,71,0.04); border: 1px dashed var(--amber-border); border-radius: 12px; padding: 32px; text-align: center; margin-bottom: 24px; }
+    .cal-connect-title { font-family: 'Orbitron', monospace; font-size: 12px; color: var(--amber); letter-spacing: 2px; margin-bottom: 10px; }
+    .cal-connect-sub { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+    .cal-connect-sub code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: var(--amber); font-size: 11px; }
+    .cal-day-group { margin-bottom: 20px; }
+    .cal-day-header { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--amber); letter-spacing: 2px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,179,71,0.1); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .cal-today-badge { background: var(--amber); color: #000; font-size: 8px; padding: 1px 7px; border-radius: 10px; font-weight: 700; }
+    .cal-event {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.08);
+      transition: border-color 0.2s;
+    }
+    .cal-event:hover { border-color: var(--amber-border); }
+    .cal-event-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber); width: 110px; flex-shrink: 0; }
+    .cal-event-dot { width: 3px; height: 36px; border-radius: 2px; flex-shrink: 0; }
+    .cal-event-title { font-size: 13px; color: var(--text); font-weight: 500; }
+    .cal-event-loc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .cal-event-dur { margin-left: auto; font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
+
+    /* ─── KPI FULL PAGE ─── */
+    .kpi-week-card { background: var(--bg2); border: 1px solid rgba(255,179,71,0.12); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .kpi-week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .kpi-week-title { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--amber); letter-spacing: 2px; }
+    .kpi-week-badge { font-size: 9px; padding: 2px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; }
+    .kpi-rating-excellent { background: rgba(57,255,138,0.15); color: var(--green); }
+    .kpi-rating-good      { background: rgba(79,195,247,0.15); color: var(--blue); }
+    .kpi-rating-average   { background: rgba(255,179,71,0.15); color: var(--amber); }
+    .kpi-rating-poor      { background: rgba(255,68,68,0.15); color: var(--red); }
+    .kpi-week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+    .kpi-mini-stat { text-align: center; }
+    .kpi-mini-val { font-family: 'Orbitron', monospace; font-size: 18px; color: var(--amber); }
+    .kpi-mini-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; margin-top: 3px; font-family: 'Share Tech Mono', monospace; }
+    .kpi-week-notes { font-size: 12px; color: var(--text-dim); padding-top: 12px; border-top: 1px solid rgba(255,179,71,0.06); line-height: 1.6; }
+    .kpi-week-notes strong { color: var(--amber); }
+
+    /* ─── PROJECTS FULL PAGE ─── */
+    .project-full-card {
+      background: var(--bg2); border: 1px solid rgba(255,179,71,0.1);
+      border-radius: 12px; padding: 20px; margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .project-full-card:hover { border-color: var(--amber-border); }
+    .project-full-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .project-full-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .project-full-desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+    .project-full-body { display: grid; grid-template-columns: 1fr 160px; gap: 16px; align-items: center; }
+    .project-full-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .proj-type { font-size: 9px; padding: 2px 8px; border-radius: 4px; background: rgba(255,179,71,0.08); color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+    .proj-deadline { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+    .proj-deadline.overdue { color: var(--red); }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 2px; }
+
+    /* ─── RESPONSIVE ─── */
+
+    /* Ultrawide monitors (≥2560px — e.g. 3440×1440) */
+    @media (min-width: 2560px) {
+      main { max-width: 2200px; padding: 36px 48px; }
+      .card { padding: 28px; }
+      .card-value { font-size: 34px; }
+      .brief-stat-val { font-size: 28px; }
+      .agent-detail-card { padding: 28px; }
+      .morning-brief { padding: 26px 36px; }
+      .grid-2 { grid-template-columns: 1fr 1fr 1fr; }
+      .grid-2e { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    /* High-DPI laptops (≥1800px — e.g. 2880×1800 Retina at native scaling) */
+    @media (min-width: 1800px) and (max-width: 2559px) {
+      main { max-width: 1700px; padding: 30px 40px; }
+      .card-value { font-size: 30px; }
+      .brief-stat-val { font-size: 24px; }
+    }
+
+    /* Smaller desktops / laptops (≤1280px) */
+    @media (max-width: 1280px) {
+      main { padding: 22px 24px; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      .grid-3 > *:first-child { grid-column: 1 / -1; }
+      .project-row { flex-wrap: wrap; gap: 12px; }
+      .project-row > div[style*="flex:0 0 220px"] { flex: 1 1 160px !important; }
+    }
+
+    /* Tablets / small laptops (≤1024px) */
+    @media (max-width: 1024px) {
+      header { padding: 0 20px; }
+      .logo-sub { display: none; }
+      .nav-bar { padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+      .nav-bar::-webkit-scrollbar { display: none; }
+      .nav-tab { white-space: nowrap; }
+      main { padding: 18px 20px; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .grid-3 { grid-template-columns: 1fr; gap: 14px; }
+      .grid-2 { grid-template-columns: 1fr; gap: 14px; }
+      .grid-2e { grid-template-columns: 1fr; gap: 14px; }
+      .morning-brief { flex-direction: column; gap: 18px; }
+      .brief-right { justify-content: flex-start; gap: 28px; }
+      .agent-grid { grid-template-columns: 1fr 1fr; }
+      .card-value { font-size: 22px; }
+      .brief-stat-val { font-size: 18px; }
+      .project-row { flex-wrap: wrap; }
+      .project-row > div[style*="flex:0 0 220px"] { flex: 1 1 100% !important; min-width: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">E</div>
+    <div>
+      <div class="logo-text">E.D.I.T.H</div>
+      <div class="logo-sub">EVEN DEAD, I'M THE HERO</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-badge"><div class="status-dot"></div>ALL SYSTEMS NOMINAL</div>
+    <div class="divider"></div>
+    <div class="header-time" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<div class="nav-bar">
+  <button class="nav-tab active" onclick="switchTab('overview', this)">Overview</button>
+  <button class="nav-tab" onclick="switchTab('tasks', this)">Tasks</button>
+  <button class="nav-tab" onclick="switchTab('calendar', this)">Calendar</button>
+  <button class="nav-tab" onclick="switchTab('kpi', this)">KPI</button>
+  <button class="nav-tab" onclick="switchTab('projects', this)">Projects</button>
+  <button class="nav-tab" onclick="switchTab('agents', this)">Agents</button>
+  <button class="nav-tab" onclick="switchTab('pipeline', this)">Pipeline</button>
+  <button class="nav-tab" onclick="switchTab('content', this)">Content</button>
+  <button class="nav-tab" onclick="switchTab('research', this)">Research</button>
+</div>
+
+<main>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 1: OVERVIEW                           -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-overview">
+
+    <!-- Morning Brief -->
+    <div class="morning-brief">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="brief-left">
+        <h2>// MORNING BRIEF</h2>
+        <div class="brief-message">Good morning, <span>Ban</span>. You have <span id="brief-priorities-text">5 priorities</span> today and <span id="brief-deadlines-text">0 deadlines</span> this week. System fully operational.</div>
+      </div>
+      <div class="brief-right">
+        <div><div class="brief-stat-val" id="brief-priorities">5</div><div class="brief-stat-label">Priorities</div></div>
+        <div><div class="brief-stat-val" id="brief-tasks-due">11</div><div class="brief-stat-label">Tasks Due</div></div>
+        <div><div class="brief-stat-val" id="brief-meetings">2</div><div class="brief-stat-label">Meetings</div></div>
+        <div><div class="brief-stat-val" id="brief-agents">4</div><div class="brief-stat-label">Agents Online</div></div>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid-4">
+      <!-- INJECT:STAT_CARDS:START -->
+      <div class="stat-card"><div class="corner-tl"></div><div class="card-label">GPA Tracker</div><div class="card-value">3.82</div><div class="card-sub">Current semester</div><div class="stat-change up">↑ +0.04 from last sem</div></div>
+      <div class="stat-card"><div class="corner-tl"></div><div class="card-label">Tasks Complete</div><div class="card-value" id="stat-tasks">1/12</div><div class="card-sub">This week</div><div class="stat-change up">↑ 78% completion</div></div>
+      <div class="stat-card"><div class="corner-tl"></div><div class="card-label">Projects Active</div><div class="card-value" id="stat-projects">4</div><div class="card-sub" id="stat-projects-sub">2 due this week</div><div class="stat-change down" id="stat-projects-change">⚠ 1 overdue</div></div>
+      <div class="stat-card"><div class="corner-tl"></div><div class="card-label">Content Scheduled</div><div class="card-value" id="stat-content">3</div><div class="card-sub">Posts this week</div><div class="stat-change up" id="stat-content-change">↑ 3 ready to publish</div></div>
+      <!-- INJECT:STAT_CARDS:END -->
+    </div>
+
+    <!-- Mid row -->
+    <div class="grid-3">
+      <!-- Tasks -->
+      <div class="card" id="tasks-card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Task Manager <span class="card-tag" id="tasks-due-badge">11 DUE TODAY</span></div>
+        <!-- INJECT:TASKS:START -->
+<div class="task-item"><div class="task-check "></div><div class="task-text ">Draft email to supervisor re: internship</div><div class="task-badge badge-med">MEDIUM</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Post Week 2 content reel</div><div class="task-badge badge-med">MEDIUM</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Update portfolio website</div><div class="task-badge badge-low">LOW</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Research paper outline — NLP topic</div><div class="task-badge badge-low">LOW</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Finalise group project presentation</div><div class="task-badge badge-high">HIGH</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Review ML Week 9 lecture notes</div><div class="task-badge badge-med">MEDIUM</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Data Structure Homework</div><div class="task-badge badge-med">MEDIUM</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Submission for ASP.NET ADO.NET CRUD Tutorial</div><div class="task-badge badge-high">HIGH</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">SQL Statements Submission</div><div class="task-badge badge-high">HIGH</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">Submission for ASP.NET Tutorial</div><div class="task-badge badge-high">HIGH</div></div>
+        <div class="task-item"><div class="task-check "></div><div class="task-text ">RMCT Part 1: Project Proposal (Introduction) - Lecturer 1</div><div class="task-badge badge-high">HIGH</div></div>
+        <div class="task-item"><div class="task-check done"></div><div class="task-text done">Submit AI Ethics assignment</div><div class="task-badge badge-high">HIGH</div></div>
+        <!-- INJECT:TASKS:END -->
+      </div>
+      <!-- Calendar -->
+      <div class="card" id="calendar-card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Calendar <span class="card-tag">TODAY</span></div>
+        <!-- INJECT:OVERVIEW_CALENDAR:START -->
+<div class="event-item"><div class="event-time">10:30</div><div class="event-bar" style="background:var(--amber)"></div><div><div class="event-title">REplacement class for Friday 10 April (AI students only)</div><div class="event-sub">Microsoft Teams Meeting · 1h 00m</div></div></div>
+        <!-- INJECT:OVERVIEW_CALENDAR:END -->
+      </div>
+      <!-- Agents mini -->
+      <div class="card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Agent Roster</div>
+        <div class="agent-grid">
+          <div class="agent-card"><div class="agent-avatar" style="background:rgba(255,179,71,0.15);color:var(--amber)">M</div><div><div class="agent-name">Main</div><div class="agent-role">Chief of Staff</div></div><div class="agent-status"><div class="agent-dot"></div>ON</div></div>
+          <div class="agent-card"><div class="agent-avatar" style="background:rgba(79,195,247,0.15);color:var(--blue)">R</div><div><div class="agent-name">Researcher</div><div class="agent-role">Web Research</div></div><div class="agent-status"><div class="agent-dot"></div>ON</div></div>
+          <div class="agent-card"><div class="agent-avatar" style="background:rgba(255,68,68,0.15);color:var(--red)">C</div><div><div class="agent-name">Creator</div><div class="agent-role">Content & Copy</div></div><div class="agent-status"><div class="agent-dot"></div>ON</div></div>
+          <div class="agent-card"><div class="agent-avatar" style="background:rgba(57,255,138,0.15);color:var(--green)">V</div><div><div class="agent-name">Voice</div><div class="agent-role">Phone Agent</div></div><div class="agent-status"><div class="agent-dot"></div>ON</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="grid-2">
+      <!-- KPI -->
+      <div class="card" id="kpi-digest-card">
+        <div class="corner-tl"></div>
+        <div class="card-title">KPI Digest <span class="card-tag">WEEKLY</span></div>
+        <!-- INJECT:KPI:START -->
+<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Tasks Completed</span><span class="kpi-val">21/24</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:87%"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Study Hours</span><span class="kpi-val">28h</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:70%"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Content Posted</span><span class="kpi-val">5</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:71%"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">GPA Target</span><span class="kpi-val">3%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:3%"></div></div></div>
+        <!-- INJECT:KPI:END -->
+      </div>
+      <!-- Content mini -->
+      <div class="card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Content Pipeline <span class="card-tag">TODAY'S IDEAS</span></div>
+        <!-- INJECT:CONTENT_MINI:START -->
+<div class="content-item"><div class="content-num">01</div><div class="content-text">Day in the life of a CS student with an AI assistant</div><div class="content-tag">REEL</div></div>
+        <div class="content-item"><div class="content-num">02</div><div class="content-text">What I learned building AI agents as a CS student</div><div class="content-tag">REEL</div></div>
+        <div class="content-item"><div class="content-num">03</div><div class="content-text">5 AI tools that actually saved me during finals week</div><div class="content-tag">REEL</div></div>
+        <!-- INJECT:CONTENT_MINI:END -->
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,179,71,0.08);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">NEXT GENERATION IN</span>
+          <span id="countdown" style="font-family:'Orbitron',monospace;font-size:13px;color:var(--amber)">06:42:17</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 2: AGENTS                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ══ TASKS TAB ══ -->
+  <div class="tab-panel" id="tab-tasks">
+    <div class="page-header">
+      <div class="page-title">TASK MANAGER</div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterTasks('all',this)">ALL</button>
+        <button class="filter-btn" onclick="filterTasks('high',this)">🔴 HIGH</button>
+        <button class="filter-btn" onclick="filterTasks('medium',this)">🟡 MEDIUM</button>
+        <button class="filter-btn" onclick="filterTasks('low',this)">🔵 LOW</button>
+        <button class="filter-btn" onclick="filterTasks('done',this)">✅ DONE</button>
+        <button class="filter-btn" onclick="filterTasks('pending',this)">⏳ PENDING</button>
+      </div>
+    </div>
+    <div class="tasks-stats" id="tasks-full-stats">
+      <div class="task-stat-box"><div class="task-stat-num" id="tstat-total">—</div><div class="task-stat-lbl">TOTAL</div></div>
+      <div class="task-stat-box"><div class="task-stat-num" id="tstat-pending" style="color:var(--blue)">—</div><div class="task-stat-lbl">PENDING</div></div>
+      <div class="task-stat-box"><div class="task-stat-num" id="tstat-high" style="color:var(--red)">—</div><div class="task-stat-lbl">HIGH PRIORITY</div></div>
+      <div class="task-stat-box"><div class="task-stat-num" id="tstat-done" style="color:var(--green)">—</div><div class="task-stat-lbl">DONE</div></div>
+    </div>
+    <div id="tasks-full-list">
+      <!-- INJECT:TASKS_FULL:START -->
+<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Draft email to supervisor re: internship</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due overdue">Due 2026-03-31</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
+<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Post Week 2 content reel</div><div class="task-full-meta"><span class="task-cat">['📱 Content']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
+<div class="task-full-item" data-priority="low" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Update portfolio website</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due ">Due 2026-04-10</span><span class="task-badge badge-low">LOW</span></div></div></div>
+<div class="task-full-item" data-priority="low" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Research paper outline — NLP topic</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-04-05</span><span class="task-badge badge-low">LOW</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Finalise group project presentation</div><div class="task-full-meta"><span class="task-cat">['🚀 Project']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="true"><div class="task-full-check done"></div><div class="task-full-body"><div class="task-full-name done">Submit AI Ethics assignment</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due ">Due 2026-03-28</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Review ML Week 9 lecture notes</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-03-29</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
+<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Data Structure Homework</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET ADO.NET CRUD Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">SQL Statements Submission</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">RMCT Part 1: Project Proposal (Introduction) - Lecturer 1</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2024-04-11</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+        <!-- INJECT:TASKS_FULL:END -->
+    </div>
+  </div>
+
+  <!-- ══ CALENDAR TAB ══ -->
+  <div class="tab-panel" id="tab-calendar">
+    <div class="page-header">
+      <div class="page-title">CALENDAR</div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterCalendar('all',this)">ALL</button>
+          <button class="filter-btn" onclick="filterCalendar('week',this)">THIS WEEK</button>
+          <button class="filter-btn" onclick="filterCalendar('today',this)">TODAY</button>
+        </div>
+        <div id="cal-sync-status" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;"></div>
+      </div>
+    </div>
+    <!-- INJECT:CALENDAR:START -->
+<div class="cal-day-group" data-date="2026-04-08"><div class="cal-day-header">TODAY <span class="cal-today-badge">TODAY</span></div>
+<div class="cal-event"><div class="cal-event-time">10:30–11:30</div><div class="cal-event-dot" style="background:var(--amber)"></div><div><div class="cal-event-title">REplacement class for Friday 10 April (AI students only)</div><div class="cal-event-loc">Microsoft Teams Meeting</div></div><div class="cal-event-dur">1h 00m</div></div>
+</div>
+<div class="cal-day-group" data-date="2026-04-09"><div class="cal-day-header">THURSDAY, APRIL 09 </div>
+<div class="cal-event"><div class="cal-event-time">10:30–11:30</div><div class="cal-event-dot" style="background:var(--amber)"></div><div><div class="cal-event-title">Replacement for the 10 April for student (CGD and CS)</div><div class="cal-event-loc">Microsoft Teams Meeting</div></div><div class="cal-event-dur">1h 00m</div></div>
+<div class="cal-event"><div class="cal-event-time">13:30–15:30</div><div class="cal-event-dot" style="background:var(--blue)"></div><div><div class="cal-event-title">WPS_L14_9th April 2026</div><div class="cal-event-loc">Microsoft Teams Meeting</div></div><div class="cal-event-dur">2h 00m</div></div>
+</div>
+        <!-- INJECT:CALENDAR:END -->
+  </div>
+
+  <!-- ══ KPI TAB ══ -->
+  <div class="tab-panel" id="tab-kpi">
+    <div class="page-header">
+      <div class="page-title">KPI DIGEST</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;">WEEKLY PERFORMANCE TRACKING</div>
+    </div>
+    <!-- INJECT:KPI_FULL:START -->
+<div class="kpi-week-card"><div class="kpi-week-header"><div class="kpi-week-title">Week of Mar 16 — Mar 22, 2026</div><div class="kpi-week-badge kpi-rating-excellent">Excellent</div></div><div class="kpi-week-grid"><div class="kpi-mini-stat"><div class="kpi-mini-val">21/24</div><div class="kpi-mini-lbl">TASKS</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">28h</div><div class="kpi-mini-lbl">STUDY HRS</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">5</div><div class="kpi-mini-lbl">CONTENT</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">3%</div><div class="kpi-mini-lbl">GPA TARGET</div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Tasks</span><span class="kpi-val">87%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:87%"></div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Study Hours</span><span class="kpi-val">28h</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:70%"></div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Content Posted</span><span class="kpi-val">5</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:71%"></div></div></div><div class="kpi-week-notes"><strong>Wins:</strong> Best week yet. Hit study hours target. Full content schedule posted.<br><strong>Blockers:</strong> None major.</div></div>
+<div class="kpi-week-card"><div class="kpi-week-header"><div class="kpi-week-title">Week of Mar 23 — Mar 29, 2026</div><div class="kpi-week-badge kpi-rating-good">Good</div></div><div class="kpi-week-grid"><div class="kpi-mini-stat"><div class="kpi-mini-val">18/23</div><div class="kpi-mini-lbl">TASKS</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">24h</div><div class="kpi-mini-lbl">STUDY HRS</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">4</div><div class="kpi-mini-lbl">CONTENT</div></div><div class="kpi-mini-stat"><div class="kpi-mini-val">3%</div><div class="kpi-mini-lbl">GPA TARGET</div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Tasks</span><span class="kpi-val">78%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:78%"></div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Study Hours</span><span class="kpi-val">24h</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:60%"></div></div></div><div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Content Posted</span><span class="kpi-val">4</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:57%"></div></div></div><div class="kpi-week-notes"><strong>Wins:</strong> Submitted AI Ethics on time. Finished ML Week 8 notes. Posted 4 reels.<br><strong>Blockers:</strong> Group project coordination slow. Portfolio not started yet.</div></div>
+        <!-- INJECT:KPI_FULL:END -->
+  </div>
+
+  <!-- ══ PROJECTS TAB ══ -->
+  <div class="tab-panel" id="tab-projects">
+    <div class="page-header">
+      <div class="page-title">PROJECTS</div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterProjects('all',this)">ALL</button>
+        <button class="filter-btn" onclick="filterProjects('In Progress',this)">🔵 IN PROGRESS</button>
+        <button class="filter-btn" onclick="filterProjects('Planning',this)">🟡 PLANNING</button>
+        <button class="filter-btn" onclick="filterProjects('Done',this)">✅ DONE</button>
+        <button class="filter-btn" onclick="filterProjects('Blocked',this)">🔴 BLOCKED</button>
+      </div>
+    </div>
+    <div id="projects-full-list">
+      <!-- INJECT:PROJECTS_FULL:START -->
+<div class="project-full-card" data-status="in progress"><div class="project-full-header"><div><div class="project-full-title">E.D.I.T.H AI OS</div><div class="project-full-desc">Building a full AI operating system with dashboard, Notion OS, voice agent, and automation layer</div></div><div class="proj-badge badge-inprog">IN PROGRESS</div></div><div class="project-full-body"><div><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">35%</span></div><div class="prog-bar"><div class="prog-fill" style="width:35%;background:linear-gradient(90deg,var(--amber-dim),var(--amber))"></div></div><div class="project-full-meta"><span class="proj-type">['💡 Side Project']</span><span class="proj-deadline ">📅 2026-05-01</span></div></div></div></div>
+<div class="project-full-card" data-status="planning"><div class="project-full-header"><div><div class="project-full-title">Personal Portfolio Website</div><div class="project-full-desc">Showcase projects, skills, and blog posts. Built with Next.js and Tailwind</div></div><div class="proj-badge badge-plan">PLANNING</div></div><div class="project-full-body"><div><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">10%</span></div><div class="prog-bar"><div class="prog-fill" style="width:10%;background:linear-gradient(90deg,#2a6b8a,var(--blue))"></div></div><div class="project-full-meta"><span class="proj-type">['💡 Side Project', '💼 Freelance']</span><span class="proj-deadline ">📅 2026-04-30</span></div></div></div></div>
+<div class="project-full-card" data-status="in progress"><div class="project-full-header"><div><div class="project-full-title">Final Year Group Project — AI Recommendation System</div><div class="project-full-desc">Collaborative ML project building a movie recommendation system using collaborative filtering</div></div><div class="proj-badge badge-inprog">IN PROGRESS</div></div><div class="project-full-body"><div><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">60%</span></div><div class="prog-bar"><div class="prog-fill" style="width:60%;background:linear-gradient(90deg,#6b2a8a,var(--purple))"></div></div><div class="project-full-meta"><span class="proj-type">['📚 Academic']</span><span class="proj-deadline ">📅 2026-04-15</span></div></div></div></div>
+<div class="project-full-card" data-status="planning"><div class="project-full-header"><div><div class="project-full-title">NLP Research Paper</div><div class="project-full-desc">Research paper on transformer-based sentiment analysis for multilingual datasets</div></div><div class="proj-badge badge-plan">PLANNING</div></div><div class="project-full-body"><div><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">5%</span></div><div class="prog-bar"><div class="prog-fill" style="width:5%;background:linear-gradient(90deg,#1a6b3a,var(--green))"></div></div><div class="project-full-meta"><span class="proj-type">['📚 Academic']</span><span class="proj-deadline ">📅 2026-05-15</span></div></div></div></div>
+        <!-- INJECT:PROJECTS_FULL:END -->
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-agents">
+
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--amber);letter-spacing:3px;margin-bottom:6px;">// AGENT ROSTER</div>
+      <div style="font-size:13px;color:var(--text-dim);">4 agents online · All systems nominal · Last sync: <span style="color:var(--amber);font-family:'Share Tech Mono',monospace;" id="sync-time">just now</span></div>
+    </div>
+
+    <div class="grid-2e">
+
+      <!-- Main Agent -->
+      <div class="agent-detail-card">
+        <div class="corner-tl"></div>
+        <div class="agent-detail-header">
+          <div class="agent-detail-avatar" style="background:rgba(255,179,71,0.15);color:var(--amber)">M</div>
+          <div>
+            <div class="agent-detail-name">MAIN — Chief of Staff</div>
+            <div class="agent-detail-role">Orchestrator · Morning Briefs · Scheduling</div>
+          </div>
+          <div class="agent-online"><div class="agent-dot"></div>ONLINE</div>
+        </div>
+        <div class="agent-cap-list">
+          <div class="agent-cap">Delivers daily morning brief every morning</div>
+          <div class="agent-cap">Coordinates all other agents</div>
+          <div class="agent-cap">Manages task priorities and deadlines</div>
+          <div class="agent-cap">Sends end-of-day summaries</div>
+          <div class="agent-cap">Routes incoming requests to the right agent</div>
+        </div>
+        <div class="agent-last">LAST ACTION: <span>Generated morning brief · 07:00 today</span></div>
+      </div>
+
+      <!-- Researcher Agent -->
+      <div class="agent-detail-card">
+        <div class="corner-tl"></div>
+        <div class="agent-detail-header">
+          <div class="agent-detail-avatar" style="background:rgba(79,195,247,0.15);color:var(--blue)">R</div>
+          <div>
+            <div class="agent-detail-name">RESEARCHER — Intelligence</div>
+            <div class="agent-detail-role">Web Research · Summaries · Fact Checking</div>
+          </div>
+          <div class="agent-online"><div class="agent-dot"></div>ONLINE</div>
+        </div>
+        <div class="agent-cap-list">
+          <div class="agent-cap">Searches the web and summarises findings</div>
+          <div class="agent-cap">Tracks competitor moves weekly</div>
+          <div class="agent-cap">Summarises research papers and articles</div>
+          <div class="agent-cap">Fact-checks before important submissions</div>
+          <div class="agent-cap">Monitors mentions and brand sentiment</div>
+        </div>
+        <div class="agent-last">LAST ACTION: <span>Researched "XLM-RoBERTa vs mBERT" · 2h ago</span></div>
+      </div>
+
+      <!-- Creator Agent -->
+      <div class="agent-detail-card">
+        <div class="corner-tl"></div>
+        <div class="agent-detail-header">
+          <div class="agent-detail-avatar" style="background:rgba(255,68,68,0.15);color:var(--red)">C</div>
+          <div>
+            <div class="agent-detail-name">CREATOR — Content & Copy</div>
+            <div class="agent-detail-role">Content Ideas · Scripts · Email Drafts</div>
+          </div>
+          <div class="agent-online"><div class="agent-dot"></div>ONLINE</div>
+        </div>
+        <div class="agent-cap-list">
+          <div class="agent-cap">Generates 3 daily reel ideas with hooks</div>
+          <div class="agent-cap">Writes full scripts for content pieces</div>
+          <div class="agent-cap">Drafts emails in your tone and voice</div>
+          <div class="agent-cap">Creates captions and hashtag sets</div>
+          <div class="agent-cap">Repurposes content across platforms</div>
+        </div>
+        <div class="agent-last">LAST ACTION: <span>Generated 3 content ideas · This morning</span></div>
+      </div>
+
+      <!-- Voice Agent -->
+      <div class="agent-detail-card">
+        <div class="corner-tl"></div>
+        <div class="agent-detail-header">
+          <div class="agent-detail-avatar" style="background:rgba(57,255,138,0.15);color:var(--green)">V</div>
+          <div>
+            <div class="agent-detail-name">VOICE — Phone Agent</div>
+            <div class="agent-detail-role">Vapi + ElevenLabs · Inbound · Outbound</div>
+          </div>
+          <div class="agent-online"><div class="agent-dot"></div>ONLINE</div>
+        </div>
+        <div class="agent-cap-list">
+          <div class="agent-cap">Answers inbound calls when you're busy</div>
+          <div class="agent-cap">Makes outbound follow-up calls on your behalf</div>
+          <div class="agent-cap">Drops voicemails automatically</div>
+          <div class="agent-cap">Sounds like you via ElevenLabs voice clone</div>
+          <div class="agent-cap">Logs full call transcripts to dashboard</div>
+        </div>
+        <div class="agent-last">LAST ACTION: <span>Awaiting activation · Run deploy command</span></div>
+      </div>
+
+    </div>
+
+    <!-- System Stats -->
+    <div class="grid-4" style="margin-top:20px;">
+      <div class="stat-card"><div class="card-label">Agents Online</div><div class="card-value">4/4</div><div class="card-sub">All operational</div></div>
+      <div class="stat-card"><div class="card-label">Actions Today</div><div class="card-value">14</div><div class="card-sub">Across all agents</div></div>
+      <div class="stat-card"><div class="card-label">Tasks Automated</div><div class="card-value">23</div><div class="card-sub">This week</div></div>
+      <div class="stat-card"><div class="card-label">Hours Saved</div><div class="card-value">~8h</div><div class="card-sub">This week</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 3: PIPELINE                           -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-pipeline">
+
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--amber);letter-spacing:3px;margin-bottom:6px;">// PROJECT PIPELINE</div>
+      <div style="font-size:13px;color:var(--text-dim);" id="pipeline-header-sub">4 active projects · 0 deadlines this week</div>
+    </div>
+
+    <div class="grid-2e" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="card-label">In Progress</div><div class="card-value">2</div><div class="card-sub">Active builds</div></div>
+      <div class="stat-card"><div class="card-label">Planning</div><div class="card-value">2</div><div class="card-sub">Upcoming</div></div>
+    </div>
+
+    <!-- Projects -->
+    <div class="card" id="projects-card" style="margin-bottom:20px;">
+      <div class="corner-tl"></div>
+      <div class="card-title">All Projects <span class="card-tag">4 ACTIVE</span></div>
+      <!-- INJECT:PROJECTS:START -->
+<div class="project-row"><div class="project-icon" style="background:rgba(255,179,71,0.08)">📁</div><div style="min-width:0;flex:0 0 220px;"><div class="project-name">E.D.I.T.H AI OS</div><div class="project-meta">['💡 Side Project'] · Due 2026-05-01</div></div><div class="project-progress"><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">35%</span></div><div class="prog-bar"><div class="prog-fill" style="width:35%;background:linear-gradient(90deg,var(--amber-dim),var(--amber))"></div></div></div><div class="proj-badge badge-inprog">IN PROGRESS</div></div>
+      <div class="project-row"><div class="project-icon" style="background:rgba(255,179,71,0.08)">📁</div><div style="min-width:0;flex:0 0 220px;"><div class="project-name">Personal Portfolio Website</div><div class="project-meta">['💡 Side Project', '💼 Freelance'] · Due 2026-04-30</div></div><div class="project-progress"><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">10%</span></div><div class="prog-bar"><div class="prog-fill" style="width:10%;background:linear-gradient(90deg,#2a6b8a,var(--blue))"></div></div></div><div class="proj-badge badge-plan">PLANNING</div></div>
+      <div class="project-row"><div class="project-icon" style="background:rgba(255,179,71,0.08)">📁</div><div style="min-width:0;flex:0 0 220px;"><div class="project-name">Final Year Group Project — AI Recommendation System</div><div class="project-meta">['📚 Academic'] · Due 2026-04-15</div></div><div class="project-progress"><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">60%</span></div><div class="prog-bar"><div class="prog-fill" style="width:60%;background:linear-gradient(90deg,#6b2a8a,var(--purple))"></div></div></div><div class="proj-badge badge-inprog">IN PROGRESS</div></div>
+      <div class="project-row"><div class="project-icon" style="background:rgba(255,179,71,0.08)">📁</div><div style="min-width:0;flex:0 0 220px;"><div class="project-name">NLP Research Paper</div><div class="project-meta">['📚 Academic'] · Due 2026-05-15</div></div><div class="project-progress"><div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">5%</span></div><div class="prog-bar"><div class="prog-fill" style="width:5%;background:linear-gradient(90deg,#1a6b3a,var(--green))"></div></div></div><div class="proj-badge badge-plan">PLANNING</div></div>
+        <!-- INJECT:PROJECTS:END -->
+    </div>
+
+    <!-- Deadlines + Task breakdown -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Upcoming Deadlines</div>
+        <!-- INJECT:DEADLINES:START -->
+<div class="event-item"><div class="event-time">Apr 15</div><div class="event-bar" style="background:var(--red)"></div><div><div class="event-title">Final Year Group Project — AI Recommendation System</div><div class="event-sub">['📚 Academic']</div></div></div>
+        <div class="event-item"><div class="event-time">Apr 30</div><div class="event-bar" style="background:var(--amber)"></div><div><div class="event-title">Personal Portfolio Website</div><div class="event-sub">['💡 Side Project', '💼 Freelance']</div></div></div>
+        <div class="event-item"><div class="event-time">May 01</div><div class="event-bar" style="background:var(--blue)"></div><div><div class="event-title">E.D.I.T.H AI OS</div><div class="event-sub">['💡 Side Project']</div></div></div>
+        <div class="event-item"><div class="event-time">May 15</div><div class="event-bar" style="background:var(--purple)"></div><div><div class="event-title">NLP Research Paper</div><div class="event-sub">['📚 Academic']</div></div></div>
+        <!-- INJECT:DEADLINES:END -->
+      </div>
+      <div class="card">
+        <div class="corner-tl"></div>
+        <div class="card-title">Pipeline Health</div>
+        <!-- INJECT:PIPELINE_HEALTH:START -->
+<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">E.D.I.T.H AI OS</span><span class="kpi-val">35%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:35%;background:linear-gradient(90deg,var(--amber-dim),var(--amber))"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Personal Portfolio Website</span><span class="kpi-val">10%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:10%;background:linear-gradient(90deg,#2a6b8a,var(--blue))"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Final Year Group Project — AI Recommendation System</span><span class="kpi-val">60%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:60%;background:linear-gradient(90deg,#6b2a8a,var(--purple))"></div></div></div>
+        <div class="kpi-row"><div class="kpi-header"><span class="kpi-label">NLP Research Paper</span><span class="kpi-val">5%</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:5%;background:linear-gradient(90deg,#1a6b3a,var(--green))"></div></div></div>
+        <!-- INJECT:PIPELINE_HEALTH:END -->
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,179,71,0.08);">
+          <div style="font-size:12px;color:var(--text-dim);">Overall completion across all projects</div>
+          <div id="overall-pct" style="font-family:'Orbitron',monospace;font-size:22px;color:var(--amber);margin-top:6px;">27.5%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 4: CONTENT                            -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-content">
+
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--amber);letter-spacing:3px;margin-bottom:6px;">// CONTENT PIPELINE</div>
+      <div style="font-size:13px;color:var(--text-dim);" id="content-header-sub">4 pieces tracked · 1 posted · 3 in progress</div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="card-label">Ideas</div><div class="card-value" id="cnt-ideas">2</div><div class="card-sub">Ready to script</div></div>
+      <div class="stat-card"><div class="card-label">In Production</div><div class="card-value" id="cnt-prod">1</div><div class="card-sub">Scripting / filming</div></div>
+      <div class="stat-card"><div class="card-label">Posted</div><div class="card-value" id="cnt-posted">1</div><div class="card-sub">This week</div></div>
+      <div class="stat-card"><div class="card-label">Total Pieces</div><div class="card-value" id="cnt-total">4</div><div class="card-sub">All time</div></div>
+    </div>
+
+    <!-- Content Cards -->
+    <!-- INJECT:CONTENT:START -->
+<div class="content-full-card"><div class="content-full-header"><div class="content-full-title">Day in the life of a CS student with an AI assistant</div><div class="content-status-badge s-posted">✅ POSTED</div></div><div class="content-hook">This is what it looks like when your AI handles your schedule</div><div class="content-meta"><div class="content-platform p-ig">Instagram</div> <div class="content-platform p-tt">TikTok</div><div class="content-date">Publish: 2026-03-25</div></div></div>
+    <div class="content-full-card"><div class="content-full-header"><div class="content-full-title">What I learned building AI agents as a CS student</div><div class="content-status-badge s-script">✍️ SCRIPTING</div></div><div class="content-hook">I built an AI that runs my entire life as a student — here's what happened</div><div class="content-meta"><div class="content-platform p-ig">Instagram</div> <div class="content-platform p-tt">TikTok</div><div class="content-date">Publish: 2026-03-30</div></div></div>
+    <div class="content-full-card"><div class="content-full-header"><div class="content-full-title">5 AI tools that actually saved me during finals week</div><div class="content-status-badge s-idea">💡 IDEA</div></div><div class="content-hook">Finals almost destroyed me — until I found these 5 AI tools</div><div class="content-meta"><div class="content-platform p-ig">Instagram</div> <div class="content-platform p-tt">TikTok</div> <div class="content-platform p-li">LinkedIn</div><div class="content-date">Publish: 2026-04-02</div></div></div>
+    <div class="content-full-card"><div class="content-full-header"><div class="content-full-title">How I automated my morning routine using Python + Notion API</div><div class="content-status-badge s-idea">💡 IDEA</div></div><div class="content-hook">I spent 3 hours building something that saves me 30 minutes every single day</div><div class="content-meta"><div class="content-platform p-li">LinkedIn</div> <div class="content-platform p-yt">YouTube</div><div class="content-date">Publish: 2026-04-05</div></div></div>
+        <!-- INJECT:CONTENT:END -->
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 5: RESEARCH                           -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-research">
+
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--amber);letter-spacing:3px;margin-bottom:6px;">// RESEARCH HUB</div>
+      <div style="font-size:13px;color:var(--text-dim);">Researcher agent · 4 saved entries · Last run 2h ago</div>
+    </div>
+
+    <div class="search-bar">
+      <input class="search-input" type="text" placeholder="Search research topics, papers, notes..."/>
+      <button class="search-btn">⚡ RESEARCH</button>
+    </div>
+
+    <!-- INJECT:RESEARCH:START -->
+<div class="research-item"><div class="research-header"><div class="research-title">Reinforcement Learning — Q-Learning &amp; Policy Gradient</div><div class="research-date">2026-03-27</div></div><div class="research-summary">Bellman equation, epsilon-greedy exploration, discount factor gamma. Still unclear on policy gradient derivation — revisit before exam.</div><div class="research-tags"><div class="research-tag" style="background:rgba(192,132,252,0.1);color:var(--purple)">AI</div> <div class="research-tag" style="background:rgba(79,195,247,0.1);color:var(--blue)">ML</div></div></div>
+    <div class="research-item"><div class="research-header"><div class="research-title">Sentiment Analysis — Multilingual NLP Approaches</div><div class="research-date">2026-03-26</div></div><div class="research-summary">Comparing mBERT vs XLM-RoBERTa on multilingual datasets. XLM-R showing 4% higher F1 on Thai/English mixed corpus.</div><div class="research-tags"><div class="research-tag" style="background:rgba(192,132,252,0.1);color:var(--purple)">AI</div> <div class="research-tag" style="background:rgba(79,195,247,0.1);color:var(--blue)">ML</div> <div class="research-tag" style="background:rgba(255,179,71,0.08);color:var(--text-dim)">Data Science</div></div></div>
+    <div class="research-item"><div class="research-header"><div class="research-title">Transformer Architecture &amp; Attention Mechanisms</div><div class="research-date">2026-03-25</div></div><div class="research-summary">Self-attention, multi-head attention, positional encoding. Key insight: attention allows model to focus on relevant parts of input regardless of distance.</div><div class="research-tags"><div class="research-tag" style="background:rgba(192,132,252,0.1);color:var(--purple)">AI</div> <div class="research-tag" style="background:rgba(79,195,247,0.1);color:var(--blue)">ML</div></div></div>
+    <div class="research-item"><div class="research-header"><div class="research-title">AI Ethics — Bias, Fairness &amp; Accountability</div><div class="research-date">2026-03-28</div></div><div class="research-summary">Covered algorithmic bias in hiring systems, COMPAS recidivism algorithm, and EU AI Act implications.</div><div class="research-tags"><div class="research-tag" style="background:rgba(192,132,252,0.1);color:var(--purple)">AI</div></div></div>
+        <!-- INJECT:RESEARCH:END -->
+
+  </div>
+
+</main>
+
+<script>
+  // ── CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ── SYNC TIME ──
+  const syncEl = document.getElementById('sync-time');
+  let syncSecs = 0;
+  setInterval(() => {
+    syncSecs++;
+    syncEl.textContent = syncSecs < 60 ? syncSecs + 's ago' : Math.floor(syncSecs/60) + 'm ago';
+  }, 1000);
+
+  // ── COUNTDOWN ──
+  let total = 6*3600+42*60+17;
+  setInterval(() => {
+    total = total > 0 ? total-1 : 8*3600;
+    const h = String(Math.floor(total/3600)).padStart(2,'0');
+    const m = String(Math.floor((total%3600)/60)).padStart(2,'0');
+    const s = String(total%60).padStart(2,'0');
+    const el = document.getElementById('countdown');
+    if(el) el.textContent = h+':'+m+':'+s;
+  }, 1000);
+
+  // ── TAB SWITCHING ──
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
+    try { localStorage.setItem('edith-tab', name); } catch(e) {}
+  }
+
+  // ── RESTORE LAST TAB ON LOAD ──
+  (function restoreTab() {
+    try {
+      const saved = localStorage.getItem('edith-tab');
+      if (!saved) return;
+      const panel = document.getElementById('tab-' + saved);
+      if (!panel) return;
+      const btn = document.querySelector(`.nav-tab[onclick*="'${saved}'"]`);
+      if (!btn) return;
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      panel.classList.add('active');
+      btn.classList.add('active');
+    } catch(e) {}
+  })();
+
+  // ── TASK TOGGLE + AUTO-SORT ──
+  function bindTaskToggle(item) {
+    item.addEventListener('click', () => {
+      const check = item.querySelector('.task-check');
+      const text  = item.querySelector('.task-text');
+      const list  = item.parentElement;
+
+      check.classList.toggle('done');
+      text.classList.toggle('done');
+
+      if (check.classList.contains('done')) {
+        // Fade out briefly, then move to bottom
+        item.style.opacity = '0.4';
+        setTimeout(() => {
+          item.style.opacity = '';
+          list.appendChild(item);
+        }, 180);
+      } else {
+        // Move back above the first done item
+        item.style.opacity = '0.4';
+        setTimeout(() => {
+          item.style.opacity = '';
+          const firstDone = [...list.querySelectorAll('.task-item')]
+            .find(i => i !== item && i.querySelector('.task-check').classList.contains('done'));
+          if (firstDone) list.insertBefore(item, firstDone);
+          else list.prepend(item);
+        }, 180);
+      }
+    });
+  }
+  document.querySelectorAll('.task-item').forEach(bindTaskToggle);
+
+  // ── EMPTY STATES ──
+  function checkEmptyStates() {
+    const sections = [
+      { container: '#tasks-card',    child: '.task-item',         icon: '📋', msg: "Ow, today's empty — <span>no tasks lined up</span>." },
+      { container: '#calendar-card', child: '.event-item',        icon: '📅', msg: "Nothing scheduled — <span>enjoy the free time</span>." },
+      { container: '#projects-card', child: '.project-row',       icon: '🚀', msg: "No active projects — <span>clean slate</span>." },
+      { container: '#tab-content',   child: '.content-full-card', icon: '✍️', msg: "No content pieces yet — <span>ideas incoming</span>." },
+      { container: '#tab-research',  child: '.research-item',     icon: '🔍', msg: "No research saved — <span>run a query above</span>." },
+    ];
+    sections.forEach(({ container, child, icon, msg }) => {
+      const el = document.querySelector(container);
+      if (!el) return;
+      if (el.querySelectorAll(child).length === 0 && !el.querySelector('.empty-state')) {
+        const div = document.createElement('div');
+        div.className = 'empty-state';
+        div.innerHTML = `<div class="empty-icon">${icon}</div><div class="empty-msg">${msg}</div>`;
+        el.appendChild(div);
+      }
+    });
+  }
+  checkEmptyStates();
+
+  // ── TASKS FULL PAGE FILTER ──
+  function filterTasks(filter, btn) {
+    document.querySelectorAll('#tab-tasks .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#tasks-full-list .task-full-item').forEach(item => {
+      const pri  = (item.dataset.priority || '').toLowerCase();
+      const done = item.dataset.done === 'true';
+      let show = false;
+      if (filter === 'all')    show = true;
+      if (filter === 'high')   show = pri === 'high' && !done;
+      if (filter === 'medium') show = pri === 'medium' && !done;
+      if (filter === 'low')    show = pri === 'low' && !done;
+      if (filter === 'done')   show = done;
+      if (filter === 'pending') show = !done;
+      item.style.display = show ? '' : 'none';
+    });
+  }
+
+  // ── TASKS FULL PAGE STATS ──
+  function updateTaskStats() {
+    const items   = document.querySelectorAll('#tasks-full-list .task-full-item');
+    const total   = items.length;
+    const done    = [...items].filter(i => i.dataset.done === 'true').length;
+    const pending = total - done;
+    const high    = [...items].filter(i => i.dataset.priority === 'high' && i.dataset.done !== 'true').length;
+    const ts = document.getElementById('tstat-total');
+    const tp = document.getElementById('tstat-pending');
+    const th = document.getElementById('tstat-high');
+    const td = document.getElementById('tstat-done');
+    if (ts) ts.textContent = total;
+    if (tp) tp.textContent = pending;
+    if (th) th.textContent = high;
+    if (td) td.textContent = done;
+  }
+  updateTaskStats();
+
+  // ── TASK FULL ITEM TOGGLE ──
+  function bindTaskFullToggle(item) {
+    item.addEventListener('click', () => {
+      const check = item.querySelector('.task-full-check');
+      const name  = item.querySelector('.task-full-name');
+      check.classList.toggle('done');
+      name.classList.toggle('done');
+      item.dataset.done = check.classList.contains('done') ? 'true' : 'false';
+      item.style.opacity = '0.4';
+      setTimeout(() => { item.style.opacity = ''; updateTaskStats(); }, 180);
+    });
+  }
+  document.querySelectorAll('#tasks-full-list .task-full-item').forEach(bindTaskFullToggle);
+
+  // ── PROJECTS FULL PAGE FILTER ──
+  function filterProjects(filter, btn) {
+    const row = btn.closest('.filter-row');
+    row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#projects-full-list .project-full-card').forEach(card => {
+      const status = (card.dataset.status || '').toLowerCase();
+      const show = filter === 'all' || status === filter.toLowerCase();
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  // ── CALENDAR FILTER ──
+  function _parseDateFromCalHeader(group) {
+    // Prefer data-date attribute (set by new sync code)
+    const dateStr = group.dataset.date;
+    if (dateStr) return new Date(dateStr + 'T00:00:00');
+    // Fallback: parse from header text (e.g. "WEDNESDAY, APRIL 01")
+    // NOTE: "TODAY" headers without data-date are stale — return null so
+    //       they only show in 'all' view and don't collide with date-labeled groups.
+    const hdr = (group.querySelector('.cal-day-header') || {}).textContent || '';
+    const txt = hdr.trim();
+    const MONTHS = {JANUARY:0,FEBRUARY:1,MARCH:2,APRIL:3,MAY:4,JUNE:5,
+                    JULY:6,AUGUST:7,SEPTEMBER:8,OCTOBER:9,NOVEMBER:10,DECEMBER:11};
+    const m = txt.match(/[A-Z]+,\s+([A-Z]+)\s+(\d+)/);
+    if (m && MONTHS[m[1]] !== undefined) {
+      return new Date(new Date().getFullYear(), MONTHS[m[1]], parseInt(m[2]));
+    }
+    return null; // "TODAY" header with no data-date = stale, can't trust the date
+  }
+
+  function filterCalendar(view, btn) {
+    document.querySelectorAll('#tab-calendar .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    // Start of week = Monday
+    const dow = now.getDay(); // 0=Sun
+    const diffToMon = (dow === 0) ? -6 : 1 - dow;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + diffToMon);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    document.querySelectorAll('#tab-calendar .cal-day-group').forEach(group => {
+      const d = _parseDateFromCalHeader(group);
+      // null = stale group with no parseable date (e.g. "TODAY" header without data-date)
+      // Show only in 'all' view; hide in filtered views to avoid ghost duplicates
+      if (!d) { group.style.display = view === 'all' ? '' : 'none'; return; }
+      if (view === 'all') {
+        group.style.display = '';
+      } else if (view === 'today') {
+        group.style.display = d.toDateString() === now.toDateString() ? '' : 'none';
+      } else if (view === 'week') {
+        group.style.display = (d >= weekStart && d <= weekEnd) ? '' : 'none';
+      }
+    });
+
+    // Show empty message if nothing visible
+    const calInject = document.querySelector('#tab-calendar');
+    const visible = calInject ? [...calInject.querySelectorAll('.cal-day-group')].filter(g => g.style.display !== 'none') : [];
+    const existing = calInject ? calInject.querySelector('.cal-empty-filter') : null;
+    if (visible.length === 0 && calInject) {
+      if (!existing) {
+        const msg = document.createElement('div');
+        msg.className = 'empty-state cal-empty-filter';
+        msg.innerHTML = `<div class="empty-icon">📅</div><div class="empty-msg">No events for <span>${view === 'today' ? 'today' : 'this week'}</span>.</div>`;
+        calInject.appendChild(msg);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
+  // ── AUTO-POPULATE: Tasks tab from Overview task card ──
+  function autoPopulateTasksFull() {
+    const list = document.getElementById('tasks-full-list');
+    if (!list) return;
+    // Only run if the dedicated tab hasn't been filled by sync
+    const hasRealData = list.querySelector('.task-full-item');
+    if (hasRealData) return;
+
+    const sourceItems = document.querySelectorAll('#tasks-card .task-item');
+    if (!sourceItems.length) return;
+
+    list.innerHTML = '';
+    sourceItems.forEach(item => {
+      const check  = item.querySelector('.task-check');
+      const textEl = item.querySelector('.task-text');
+      const badge  = item.querySelector('.task-badge');
+      if (!textEl) return;
+
+      const isDone  = check && check.classList.contains('done');
+      const name    = textEl.textContent.trim();
+      let priority  = 'low';
+      let badgeCls  = 'badge-low';
+      if (badge) {
+        const bc = badge.className;
+        if (bc.includes('badge-high')) { priority = 'high'; badgeCls = 'badge-high'; }
+        else if (bc.includes('badge-med')) { priority = 'medium'; badgeCls = 'badge-med'; }
+        else { priority = 'low'; badgeCls = 'badge-low'; }
+      }
+
+      const el = document.createElement('div');
+      el.className = 'task-full-item';
+      el.dataset.priority = priority;
+      el.dataset.done = String(isDone);
+      el.innerHTML =
+        `<div class="task-full-check${isDone ? ' done' : ''}"></div>` +
+        `<div class="task-full-body">` +
+        `<div class="task-full-name${isDone ? ' done' : ''}">${name}</div>` +
+        `<div class="task-full-meta"><span class="task-badge ${badgeCls}">${priority.toUpperCase()}</span></div>` +
+        `</div>`;
+      bindTaskFullToggle(el);
+      list.appendChild(el);
+    });
+    updateTaskStats();
+  }
+  autoPopulateTasksFull();
+
+  // ── AUTO-POPULATE: Projects tab from Pipeline project cards ──
+  function autoPopulateProjectsFull() {
+    const list = document.getElementById('projects-full-list');
+    if (!list) return;
+    if (list.querySelector('.project-full-card')) return; // already synced
+
+    const sourceRows = document.querySelectorAll('#projects-card .project-row');
+    if (!sourceRows.length) return;
+
+    list.innerHTML = '';
+    const COLORS = [
+      ['var(--amber-dim)', 'var(--amber)'],
+      ['#2a6b8a', 'var(--blue)'],
+      ['#6b2a8a', 'var(--purple)'],
+      ['#1a6b3a', 'var(--green)'],
+    ];
+    const BADGE_MAP = {
+      'IN PROGRESS': ['badge-inprog', 'IN PROGRESS'],
+      'PLANNING':    ['badge-plan',   'PLANNING'],
+      'DONE':        ['badge-done',   'DONE'],
+      'BLOCKED':     ['badge-block',  'BLOCKED'],
+    };
+
+    sourceRows.forEach((row, i) => {
+      const nameEl    = row.querySelector('.project-name');
+      const metaEl    = row.querySelector('.project-meta');
+      const progValEl = row.querySelector('.prog-val');
+      const progFill  = row.querySelector('.prog-fill');
+      const badgeEl   = row.querySelector('.proj-badge');
+      if (!nameEl) return;
+
+      const name       = nameEl.textContent.trim();
+      const meta       = metaEl ? metaEl.textContent.trim() : '';
+      const progVal    = progValEl ? progValEl.textContent.trim() : '0%';
+      const progNum    = parseInt(progVal) || 0;
+      const badgeTxt   = badgeEl ? badgeEl.textContent.trim() : 'PLANNING';
+      const [bCls, bLbl] = BADGE_MAP[badgeTxt] || ['badge-plan', badgeTxt];
+      const [cStart, cEnd] = COLORS[i % COLORS.length];
+
+      // Extract status for data-status filtering
+      const statusMap = { 'IN PROGRESS': 'in progress', 'PLANNING': 'planning', 'DONE': 'done', 'BLOCKED': 'blocked' };
+      const dataStatus = statusMap[badgeTxt] || badgeTxt.toLowerCase();
+
+      const card = document.createElement('div');
+      card.className = 'project-full-card';
+      card.dataset.status = dataStatus;
+      card.innerHTML =
+        `<div class="project-full-header">` +
+        `<div><div class="project-full-title">${name}</div>` +
+        (meta ? `<div class="project-full-desc">${meta}</div>` : '') +
+        `</div><div class="proj-badge ${bCls}">${bLbl}</div></div>` +
+        `<div class="project-full-body"><div>` +
+        `<div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">${progVal}</span></div>` +
+        `<div class="prog-bar"><div class="prog-fill" style="width:${progNum}%;background:linear-gradient(90deg,${cStart},${cEnd})"></div></div>` +
+        `</div></div>`;
+      list.appendChild(card);
+    });
+  }
+  autoPopulateProjectsFull();
+
+  // ── AUTO-POPULATE: KPI tab from Overview KPI digest card ──
+  function autoPopulateKpiFull() {
+    const kpiTab = document.getElementById('tab-kpi');
+    if (!kpiTab) return;
+    // Only if there's no real kpi-week-card yet
+    if (kpiTab.querySelector('.kpi-week-card')) return;
+
+    const sourceRows = document.querySelectorAll('#kpi-digest-card .kpi-row');
+    if (!sourceRows.length) return;
+
+    // Remove placeholder
+    const placeholder = kpiTab.querySelector('.empty-state');
+    if (placeholder) placeholder.remove();
+
+    const injectZone = kpiTab.querySelector('#tab-kpi > *:last-child') || kpiTab;
+
+    // Build a single "current week" card from the overview data
+    const card = document.createElement('div');
+    card.className = 'kpi-week-card';
+
+    let miniGrid = '<div class="kpi-week-grid">';
+    let barsHtml = '';
+
+    sourceRows.forEach(row => {
+      const label = row.querySelector('.kpi-label');
+      const val   = row.querySelector('.kpi-val');
+      const fill  = row.querySelector('.kpi-fill');
+      if (!label || !val) return;
+      const lbl = label.textContent.trim();
+      const v   = val.textContent.trim();
+      const w   = fill ? (fill.style.width || '0%') : '0%';
+      miniGrid += `<div class="kpi-mini-stat"><div class="kpi-mini-val">${v}</div><div class="kpi-mini-lbl">${lbl.toUpperCase()}</div></div>`;
+      barsHtml += `<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">${lbl}</span><span class="kpi-val">${v}</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:${w}"></div></div></div>`;
+    });
+    miniGrid += '</div>';
+
+    const now = new Date();
+    const weekLabel = `WEEK OF ${now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}).toUpperCase()}`;
+    card.innerHTML =
+      `<div class="kpi-week-header"><div class="kpi-week-title">${weekLabel}</div><div class="kpi-week-badge kpi-rating-average">THIS WEEK</div></div>` +
+      miniGrid + barsHtml;
+
+    // Insert inside the inject zone
+    const injectEnd = kpiTab.innerHTML.indexOf('<!-- INJECT:KPI_FULL:END -->');
+    if (injectEnd !== -1) {
+      kpiTab.querySelector('[id]') ; // no-op — just use appendChild as fallback
+    }
+    kpiTab.appendChild(card);
+  }
+  autoPopulateKpiFull();
+
+  // ── RESEARCH SEARCH (cosmetic) ──
+  function runSearch() {
+    const q = document.querySelector('.search-input').value.trim();
+    if(q) alert('E.D.I.T.H Research Agent\n\nQuery: "' + q + '"\n\nConnect your ANTHROPIC_API_KEY to run live research.\nSee edith_skills.py → python edith_skills.py research');
+  }
+  document.querySelector('.search-btn').addEventListener('click', runSearch);
+  document.querySelector('.search-input').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') runSearch();
+  });
+</script>
+
+</body>
+<

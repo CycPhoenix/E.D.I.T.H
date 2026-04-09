@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="strongGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="bgGlow" cx="20%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#0f0d00"/>
+      <stop offset="100%" stop-color="#090909"/>
+    </radialGradient>
+    <radialGradient id="iconGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(255,179,71,0.10)"/>
+      <stop offset="100%" stop-color="rgba(255,179,71,0.01)"/>
+    </radialGradient>
+    <linearGradient id="divider" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,179,71,0)"/>
+      <stop offset="30%" stop-color="rgba(255,179,71,0.4)"/>
+      <stop offset="70%" stop-color="rgba(255,179,71,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,179,71,0)"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#cc8a2a"/>
+      <stop offset="50%" stop-color="#FFB347"/>
+      <stop offset="100%" stop-color="#cc8a2a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="160" fill="url(#bgGlow)" rx="16"/>
+  <rect x="1" y="1" width="558" height="158" fill="none" stroke="rgba(255,179,71,0.16)" stroke-width="1" rx="15"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="80" x2="560" y2="80" stroke="rgba(255,179,71,0.03)" stroke-width="0.5"/>
+
+  <!-- Outer corner brackets (inset to clear the rx=16 rounded corners) -->
+  <path d="M 24  42  L 24  24  L 42  24"  fill="none" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 536 42  L 536 24  L 518 24"  fill="none" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 24  118 L 24  136 L 42  136" fill="none" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 536 118 L 536 136 L 518 136" fill="none" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- ── ICON AREA (left 160px) ── -->
+
+  <!-- Icon bg glow -->
+  <circle cx="80" cy="80" r="52" fill="url(#iconGlow)"/>
+
+  <!-- Hex (center 80,78, r=46) -->
+  <polygon
+    points="80,32 120,55 120,101 80,124 40,101 40,55"
+    fill="rgba(255,179,71,0.05)"
+    stroke="#FFB347"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+  <!-- Inner dashed hex -->
+  <polygon
+    points="80,40 112,59 112,97 80,116 48,97 48,59"
+    fill="none"
+    stroke="rgba(255,179,71,0.12)"
+    stroke-width="0.6"
+    stroke-linejoin="round"
+    stroke-dasharray="3 3"
+  />
+
+  <!-- Vertex dots -->
+  <circle cx="80"  cy="32"  r="1.8" fill="#FFB347" opacity="0.55"/>
+  <circle cx="120" cy="55"  r="1.8" fill="#FFB347" opacity="0.55"/>
+  <circle cx="120" cy="101" r="1.8" fill="#FFB347" opacity="0.55"/>
+  <circle cx="80"  cy="124" r="1.8" fill="#FFB347" opacity="0.55"/>
+  <circle cx="40"  cy="101" r="1.8" fill="#FFB347" opacity="0.55"/>
+  <circle cx="40"  cy="55"  r="1.8" fill="#FFB347" opacity="0.55"/>
+
+  <!-- Big E in icon -->
+  <text
+    x="80" y="100"
+    text-anchor="middle"
+    fill="#FFB347"
+    font-family="Orbitron, 'Share Tech Mono', monospace"
+    font-size="52"
+    font-weight="900"
+    filter="url(#strongGlow)"
+  >E</text>
+
+  <!-- Divider line -->
+  <line x1="152" y1="20" x2="152" y2="140" stroke="url(#divider)" stroke-width="1"/>
+
+  <!-- ── TEXT AREA (right of divider) ── -->
+
+  <!-- Main title -->
+  <text
+    x="176" y="86"
+    fill="url(#textGrad)"
+    font-family="Orbitron, 'Share Tech Mono', monospace"
+    font-size="42"
+    font-weight="800"
+    letter-spacing="8"
+    filter="url(#glow)"
+  >E.D.I.T.H</text>
+
+  <!-- Underline accent -->
+  <line x1="176" y1="96" x2="500" y2="96" stroke="rgba(255,179,71,0.2)" stroke-width="0.8"/>
+
+  <!-- Tagline -->
+  <text
+    x="176" y="118"
+    fill="#7a7060"
+    font-family="'Share Tech Mono', Courier, monospace"
+    font-size="9.5"
+    letter-spacing="4"
+  >EVEN DEAD, I'M THE HERO</text>
+
+  <!-- Status indicator -->
+  <circle cx="176" cy="134" r="3" fill="#39ff8a" opacity="0.85" filter="url(#glow)"/>
+  <text
+    x="186" y="138"
+    fill="#39ff8a"
+    font-family="'Share Tech Mono', Courier, monospace"
+    font-size="8"
+    letter-spacing="2"
+    opacity="0.8"
+  >ALL SYSTEMS NOMINAL</text>
+</svg>

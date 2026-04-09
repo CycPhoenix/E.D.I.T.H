@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="strongGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="lensGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="bgGrad" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#0d0b00"/>
+      <stop offset="100%" stop-color="#090909"/>
+    </radialGradient>
+    <radialGradient id="lensLeft" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,179,71,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,179,71,0.03)"/>
+    </radialGradient>
+    <radialGradient id="lensRight" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,179,71,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,179,71,0.03)"/>
+    </radialGradient>
+    <clipPath id="leftLensClip">
+      <rect x="20" y="66" width="72" height="46" rx="13"/>
+    </clipPath>
+    <clipPath id="rightLensClip">
+      <rect x="108" y="66" width="72" height="46" rx="13"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" fill="url(#bgGrad)" rx="22"/>
+  <rect x="1.5" y="1.5" width="197" height="197" fill="none" stroke="rgba(255,179,71,0.16)" stroke-width="1" rx="21"/>
+
+  <!-- Subtle grid -->
+  <line x1="0" y1="100" x2="200" y2="100" stroke="rgba(255,179,71,0.03)" stroke-width="0.5"/>
+  <line x1="100" y1="0" x2="100" y2="200" stroke="rgba(255,179,71,0.03)" stroke-width="0.5"/>
+
+  <!-- HUD corner brackets -->
+  <path d="M 16  34  L 16  16  L 34  16"  fill="none" stroke="#FFB347" stroke-width="1.8" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 184 34  L 184 16  L 166 16"  fill="none" stroke="#FFB347" stroke-width="1.8" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 16  166 L 16  184 L 34  184" fill="none" stroke="#FFB347" stroke-width="1.8" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 184 166 L 184 184 L 166 184" fill="none" stroke="#FFB347" stroke-width="1.8" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- ── GLASSES ── -->
+
+  <!-- Ambient glow behind glasses -->
+  <ellipse cx="100" cy="90" rx="88" ry="34" fill="rgba(255,179,71,0.06)" filter="url(#strongGlow)"/>
+
+  <!-- Left temple arm -->
+  <path d="M 20 80 Q 10 82 8 92" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Right temple arm -->
+  <path d="M 180 80 Q 190 82 192 92" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Left lens fill -->
+  <rect x="20" y="66" width="72" height="46" rx="13" fill="url(#lensLeft)"/>
+
+  <!-- Right lens fill -->
+  <rect x="108" y="66" width="72" height="46" rx="13" fill="url(#lensRight)"/>
+
+  <!-- Left lens inner scan lines -->
+  <g clip-path="url(#leftLensClip)" opacity="0.25">
+    <line x1="20" y1="74" x2="92" y2="74" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="20" y1="80" x2="92" y2="80" stroke="#FFB347" stroke-width="0.4"/>
+    <line x1="20" y1="86" x2="92" y2="86" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="20" y1="92" x2="92" y2="92" stroke="#FFB347" stroke-width="0.4"/>
+    <line x1="20" y1="98" x2="92" y2="98" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="20" y1="104" x2="92" y2="104" stroke="#FFB347" stroke-width="0.4"/>
+  </g>
+
+  <!-- Right lens inner scan lines -->
+  <g clip-path="url(#rightLensClip)" opacity="0.25">
+    <line x1="108" y1="74" x2="180" y2="74" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="108" y1="80" x2="180" y2="80" stroke="#FFB347" stroke-width="0.4"/>
+    <line x1="108" y1="86" x2="180" y2="86" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="108" y1="92" x2="180" y2="92" stroke="#FFB347" stroke-width="0.4"/>
+    <line x1="108" y1="98" x2="180" y2="98" stroke="#FFB347" stroke-width="0.6"/>
+    <line x1="108" y1="104" x2="180" y2="104" stroke="#FFB347" stroke-width="0.4"/>
+  </g>
+
+  <!-- Left lens — targeting reticle circle -->
+  <circle cx="56" cy="89" r="14" fill="none" stroke="rgba(255,179,71,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+  <circle cx="56" cy="89" r="5"  fill="none" stroke="rgba(255,179,71,0.5)"  stroke-width="0.8"/>
+  <!-- Cross hairs -->
+  <line x1="42" y1="89" x2="49" y2="89" stroke="rgba(255,179,71,0.4)" stroke-width="0.8"/>
+  <line x1="63" y1="89" x2="70" y2="89" stroke="rgba(255,179,71,0.4)" stroke-width="0.8"/>
+  <line x1="56" y1="75" x2="56" y2="82" stroke="rgba(255,179,71,0.4)" stroke-width="0.8"/>
+  <line x1="56" y1="96" x2="56" y2="103" stroke="rgba(255,179,71,0.4)" stroke-width="0.8"/>
+
+  <!-- Right lens — small data readout bars -->
+  <rect x="118" y="75" width="16" height="2.5" rx="1" fill="rgba(255,179,71,0.7)" filter="url(#glow)"/>
+  <rect x="118" y="80" width="26" height="2.5" rx="1" fill="rgba(255,179,71,0.5)"/>
+  <rect x="118" y="85" width="20" height="2.5" rx="1" fill="rgba(255,179,71,0.6)"/>
+  <rect x="118" y="90" width="30" height="2.5" rx="1" fill="rgba(255,179,71,0.35)"/>
+  <rect x="118" y="95" width="22" height="2.5" rx="1" fill="rgba(255,179,71,0.5)"/>
+  <rect x="118" y="100" width="14" height="2.5" rx="1" fill="rgba(255,179,71,0.4)"/>
+
+  <!-- Left lens border -->
+  <rect x="20" y="66" width="72" height="46" rx="13" fill="none" stroke="#FFB347" stroke-width="2" filter="url(#lensGlow)"/>
+  <!-- Right lens border -->
+  <rect x="108" y="66" width="72" height="46" rx="13" fill="none" stroke="#FFB347" stroke-width="2" filter="url(#lensGlow)"/>
+
+  <!-- Nose bridge -->
+  <path d="M 92 80 Q 100 88 108 80" fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- ── BOTTOM TEXT ── -->
+  <text
+    x="100" y="154"
+    text-anchor="middle"
+    fill="#FFB347"
+    font-family="Orbitron, 'Share Tech Mono', monospace"
+    font-size="11"
+    font-weight="700"
+    letter-spacing="5"
+    filter="url(#glow)"
+  >E.D.I.T.H</text>
+
+  <text
+    x="100" y="170"
+    text-anchor="middle"
+    fill="rgba(122,112,96,0.7)"
+    font-family="'Share Tech Mono', Courier, monospace"
+    font-size="6.5"
+    letter-spacing="2.5"
+  >EVEN DEAD, I'M THE HERO</text>
+</svg>

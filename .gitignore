@@ -1,0 +1,50 @@
+# ── Secrets & Config ─────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+
+# ── Runtime State ─────────────────────────────────────────────────────────────
+.edith_discord_state.json
+*.state.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+
+# ── Virtual Environment ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Private Code ──────────────────────────────────────────────────────────────
+# Personal bot logic, Notion workspace structure, and notification credentials.
+# Architecture files (edith_sync, edith_builders, edith_calendar) are public.
+edith_skills/edith_telegram_bot.py
+edith_skills/edith_notify.py
+edith_skills/edith_notion.py
+edith_skills/edith_skills.py
+edith_voice_agent/edith_voice_agent.py
+
+# ── Dev / Diagnostic Tools ────────────────────────────────────────────────────
+edith_skills/test_ics.py
+
+# ── Editor & OS ───────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Claude Internal Workspace ─────────────────────────────────────────────────
+.claude/
+
+# ── Uploads / Temp ────────────────────────────────────────────────────────────
+uploads/
+*.tmp
+*.log

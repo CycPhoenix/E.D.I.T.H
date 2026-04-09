@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="strongGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="bgGlow" cx="50%" cy="48%" r="45%">
+      <stop offset="0%" stop-color="#1a1200"/>
+      <stop offset="100%" stop-color="#090909"/>
+    </radialGradient>
+    <radialGradient id="hexFill" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(255,179,71,0.08)"/>
+      <stop offset="100%" stop-color="rgba(255,179,71,0.02)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" fill="url(#bgGlow)" rx="22"/>
+  <rect x="1.5" y="1.5" width="197" height="197" fill="none" stroke="rgba(255,179,71,0.18)" stroke-width="1" rx="21"/>
+
+  <!-- Subtle grid -->
+  <line x1="0" y1="100" x2="200" y2="100" stroke="rgba(255,179,71,0.04)" stroke-width="0.5"/>
+  <line x1="100" y1="0" x2="100" y2="200" stroke="rgba(255,179,71,0.04)" stroke-width="0.5"/>
+
+  <!-- HUD corner brackets -->
+  <path d="M 16  36  L 16  16  L 36  16"  fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 184 36  L 184 16  L 164 16"  fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 16  164 L 16  184 L 36  184" fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M 184 164 L 184 184 L 164 184" fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Corner tick marks -->
+  <circle cx="16" cy="16" r="1.5" fill="rgba(255,179,71,0.5)"/>
+  <circle cx="184" cy="16" r="1.5" fill="rgba(255,179,71,0.5)"/>
+  <circle cx="16" cy="184" r="1.5" fill="rgba(255,179,71,0.5)"/>
+  <circle cx="184" cy="184" r="1.5" fill="rgba(255,179,71,0.5)"/>
+
+  <!-- Outer hex ring (radius 72, center 100,94) -->
+  <!-- Points: top=100,22 | tr=122.4,144? let me recalc -->
+  <!-- hex with center(100,92), r=62: top(100,30), tr(153.7,61), br(153.7,123), bot(100,154), bl(46.3,123), tl(46.3,61) -->
+  <polygon
+    points="100,30 153,61 153,123 100,154 47,123 47,61"
+    fill="url(#hexFill)"
+    stroke="#FFB347"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+
+  <!-- Inner hex decoration (r=52) -->
+  <polygon
+    points="100,40 144,66 144,118 100,144 56,118 56,66"
+    fill="none"
+    stroke="rgba(255,179,71,0.15)"
+    stroke-width="0.8"
+    stroke-linejoin="round"
+    stroke-dasharray="4 3"
+  />
+
+  <!-- Hex vertex dots -->
+  <circle cx="100" cy="30"  r="2" fill="#FFB347" opacity="0.6"/>
+  <circle cx="153" cy="61"  r="2" fill="#FFB347" opacity="0.6"/>
+  <circle cx="153" cy="123" r="2" fill="#FFB347" opacity="0.6"/>
+  <circle cx="100" cy="154" r="2" fill="#FFB347" opacity="0.6"/>
+  <circle cx="47"  cy="123" r="2" fill="#FFB347" opacity="0.6"/>
+  <circle cx="47"  cy="61"  r="2" fill="#FFB347" opacity="0.6"/>
+
+  <!-- Centre ambient glow behind E -->
+  <circle cx="100" cy="92" r="38" fill="rgba(255,179,71,0.07)" filter="url(#strongGlow)"/>
+
+  <!-- Big E -->
+  <text
+    x="100" y="112"
+    text-anchor="middle"
+    fill="#FFB347"
+    font-family="Orbitron, 'Share Tech Mono', monospace"
+    font-size="64"
+    font-weight="900"
+    filter="url(#strongGlow)"
+  >E</text>
+
+  <!-- Scanline accent across E -->
+  <line x1="60" y1="92" x2="140" y2="92" stroke="rgba(255,179,71,0.12)" stroke-width="0.8"/>
+
+  <!-- Bottom label -->
+  <text
+    x="100" y="174"
+    text-anchor="middle"
+    fill="#FFB347"
+    font-family="Orbitron, 'Share Tech Mono', monospace"
+    font-size="9.5"
+    font-weight="600"
+    letter-spacing="5"
+    filter="url(#glow)"
+  >E.D.I.T.H</text>
+</svg>
