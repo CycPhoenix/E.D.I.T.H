@@ -544,6 +544,101 @@
     }
     @keyframes bootFadeIn  { to { opacity: 1; } }
     @keyframes bootBarFill { to { width: 100%; } }
+
+    /* ── TASK 7: TAB SLIDE DIRECTION ───────────────────────────── */
+    @keyframes slideInRight { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes slideInLeft  { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
+    .tab-panel.slide-left  { animation: slideInLeft  0.25s ease both; }
+    .tab-panel.slide-right { animation: slideInRight 0.25s ease both; }
+
+    /* ── TASK 8: CARD HOVER LIFT ────────────────────────────────── */
+    .food-card,
+    .project-full-card,
+    .stat-card,
+    .agent-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+    }
+    .food-card:hover,
+    .project-full-card:hover,
+    .stat-card:hover,
+    .agent-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(255,179,71,0.12);
+    }
+
+    /* ── TASK 9: CLOCK DIGIT FLIP ───────────────────────────────── */
+    .flip-unit { display: inline-block; }
+    .flip-unit span { display: inline-block; }
+    .flip-unit.flipping span { animation: digitFlip 0.2s ease; }
+    @keyframes digitFlip {
+      0%   { transform: rotateX(0deg); }
+      50%  { transform: rotateX(-90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+
+    /* ── TASK 10: TYPEWRITER CURSOR ─────────────────────────────── */
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+    /* ── TASK 11: HEADER SWEEP ──────────────────────────────────── */
+    header { overflow: hidden; }
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -60px; bottom: 0;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, rgba(255,179,71,0.15), transparent);
+      animation: header-sweep 20s 5s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes header-sweep {
+      0%   { left: -60px; }
+      100% { left: 100%; }
+    }
+
+    /* ── TASK 12: AGENT PULSE RINGS ─────────────────────────────── */
+    .agent-dot { position: relative; }
+    .agent-dot::before,
+    .agent-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid var(--green);
+      animation: agentRing 2.4s ease-out infinite;
+      opacity: 0;
+    }
+    .agent-dot::after { animation-delay: 1.2s; }
+    @keyframes agentRing {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    /* ── TASK 13: PROGRESS BAR SHIMMER ──────────────────────────── */
+    .prog-fill { position: relative; overflow: hidden; }
+    .prog-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; bottom: 0;
+      width: 50%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      animation: bar-shimmer 3s 1.2s ease-in-out infinite;
+    }
+    @keyframes bar-shimmer {
+      0%   { left: -50%; }
+      100% { left: 150%; }
+    }
+
+    /* ── TASK 14: NAV TAB RIPPLE ────────────────────────────────── */
+    .nav-tab { position: relative; overflow: hidden; }
+    .nav-tab .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,179,71,0.3);
+      transform: scale(0);
+      animation: ripple-expand 0.5s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple-expand { to { transform: scale(4); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -1036,12 +1131,34 @@
 
 <script>
   // ── CLOCK ──
+  // ── CLOCK DIGIT FLIP ──────────────────────────────────────────
+  let _prevClockParts = ['','',''];
   function updateClock() {
     const now = new Date();
-    document.getElementById('clock').textContent =
-      String(now.getHours()).padStart(2,'0') + ':' +
-      String(now.getMinutes()).padStart(2,'0') + ':' +
-      String(now.getSeconds()).padStart(2,'0');
+    const parts = [
+      String(now.getHours()).padStart(2,'0'),
+      String(now.getMinutes()).padStart(2,'0'),
+      String(now.getSeconds()).padStart(2,'0'),
+    ];
+    const el = document.getElementById('clock');
+    // Build flip units on first run
+    if (!el.querySelector('.flip-unit')) {
+      el.innerHTML = parts.map((p,i) =>
+        `<span class="flip-unit" id="fu${i}"><span>${p}</span></span>${i<2?':':''}`
+      ).join('');
+      _prevClockParts = [...parts];
+      return;
+    }
+    parts.forEach((p, i) => {
+      if (p === _prevClockParts[i]) return;
+      const fu = document.getElementById('fu' + i);
+      fu.querySelector('span').textContent = p;
+      fu.classList.remove('flipping');
+      void fu.offsetWidth;
+      fu.classList.add('flipping');
+      setTimeout(() => fu.classList.remove('flipping'), 200);
+    });
+    _prevClockParts = [...parts];
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -1080,11 +1197,18 @@
     });
   }
 
+  const TAB_ORDER = ['overview','tasks','calendar','kpi','projects','agents','pipeline','content','research','food'];
+  let _lastTabIndex = 0;
+
   function switchTab(name, el) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const newIndex = TAB_ORDER.indexOf(name);
+    const direction = newIndex >= _lastTabIndex ? 'slide-left' : 'slide-right';
+    _lastTabIndex = newIndex;
+
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active','slide-left','slide-right'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     const panel = document.getElementById('tab-' + name);
-    panel.classList.add('active');
+    panel.classList.add('active', direction);
     el.classList.add('active');
     try { localStorage.setItem('edith-tab', name); } catch(e) {}
 
@@ -1513,6 +1637,41 @@
     setTimeout(() => {
       document.querySelectorAll('#tab-overview .card-value').forEach(el => countUp(el, 1200));
     }, 400);
+  });
+
+  // ── TASK 10: MORNING BRIEF TYPEWRITER ───────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const el = document.querySelector('.brief-message');
+    if (!el) return;
+    setTimeout(() => {
+      const full = el.innerHTML;
+      el.innerHTML = '';
+      const cursor = document.createElement('span');
+      cursor.style.cssText = 'border-right:2px solid var(--amber);margin-left:1px;animation:blink 0.7s infinite;';
+      el.appendChild(cursor);
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < full.length) {
+          cursor.insertAdjacentHTML('beforebegin', full[i++]);
+        } else {
+          clearInterval(interval);
+          setTimeout(() => cursor.remove(), 1200);
+        }
+      }, 18);
+    }, 900);
+  });
+
+  // ── TASK 14: NAV TAB RIPPLE ──────────────────────────────────
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      btn.appendChild(r);
+      setTimeout(() => r.remove(), 500);
+    });
   });
 
   // ── HUD BOOT SEQUENCE ────────────────────────────────────────
