@@ -20,6 +20,7 @@ A personal AI OS built around a single-file HTML dashboard that syncs live data 
 | Pipeline | Active projects with progress bars + KPI tracker |
 | Content | Full content pipeline (Idea → Scripting → Filming → Editing → Posted) |
 | Research | Study hub / research tracker |
+| Food | Saved restaurants & cafes — status, would return, notes, Maps link |
 | Agents | Agent status panel (in development) |
 
 ---
@@ -33,7 +34,7 @@ python edith_sync.py
 Queries 5 Notion databases in parallel, fetches the Outlook ICS feed, builds HTML for each dashboard section, then rewrites the file using `<!-- INJECT:TAG:START/END -->` markers so each section updates independently.
 
 **11 injected sections per sync:**
-`TASKS` · `PROJECTS` · `KPI` · `CONTENT` · `RESEARCH` · `CONTENT_MINI` · `DEADLINES` · `PIPELINE_HEALTH` · `TASKS_FULL` · `KPI_FULL` · `PROJECTS_FULL` · `CALENDAR` · `OVERVIEW_CALENDAR`
+`TASKS` · `PROJECTS` · `KPI` · `CONTENT` · `RESEARCH` · `FOOD` · `CONTENT_MINI` · `DEADLINES` · `PIPELINE_HEALTH` · `TASKS_FULL` · `KPI_FULL` · `PROJECTS_FULL` · `CALENDAR` · `OVERVIEW_CALENDAR`
 
 **Stat counters** (tasks done/total, active projects, content in progress, avg project progress, due badges) are updated via element ID injection alongside the HTML sections.
 
@@ -76,6 +77,15 @@ Builds HTML for every section from raw Notion API responses. Key functions:
 - `build_deadlines` — upcoming project deadlines
 - `build_pipeline_health` — project health summary
 - `compute_brief` — derives morning brief stats (priorities, tasks due, deadlines, active projects)
+
+---
+
+## edith_food.py
+
+Builds HTML for the Food Places tab from Notion page data. Key functions:
+
+- `build_food_tab` — food place cards with status badges, cuisine emoji, would-return indicator, notes snippet, Maps link button
+- `build_food_stats` — returns stats dict (total, visited, want_to_try, regulars, would_return) for optional Overview use
 
 Shared helpers: `prop()` (safe Notion property extractor), `strip_emoji()`, `norm_pct()`, `update_id()`, `esc()`.
 

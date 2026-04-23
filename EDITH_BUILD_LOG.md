@@ -75,7 +75,21 @@ Sections synced: Tasks · Projects · KPI · Content · Research
 
 ---
 
-### 5. 🎤 Voice Agent
+### 5. 🍜 Food Saver
+**Files:** `edith_skills/edith_food.py` (new public), `edith_skills/edith_sync.py` (updated), `edith-command-center.html` (updated), `edith_skills/.env.example` (updated)
+
+Track restaurants and cafes via Telegram, stored in a `🍜 Food Places` Notion database, synced to a new Food tab on the dashboard.
+
+- **Dashboard tab:** Food grid with status filter (All / Visited / Want to Try / Regulars), cuisine emoji, would-return indicator, notes snippet, Maps link button
+- **Sync:** `INJECT:FOOD` markers — add `NOTION_FOOD_DB` to `.env` to enable
+- **Telegram (private):** `add_food` intent (inline button flow for Status/Cuisine/Would Return + free-text notes), `edit_food` intent, `list_food` intent
+- **Notion schema:** Name · Google Maps URL · Cuisine · Status · Would Return · Notes · Date Visited
+
+> Step 6 (edith_notion.py) and Step 7 (edith_telegram_bot.py) are private — implement per FOOD_SAVER_PLAN.md.
+
+---
+
+### 6. 🎤 Voice Agent
 **Folder:** `edith_voice_agent/`
 **Main file:** `edith_voice_agent.py`
 
