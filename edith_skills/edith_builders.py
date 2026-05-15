@@ -305,14 +305,21 @@ def build_tasks_full(pages: list) -> str:
             due_cls = "overdue" if due < today and not is_done else ""
             due_html = f'<span class="task-due {due_cls}">Due {due}</span>'
 
+        page_id  = p.get("id", "").replace("-", "")
+        complete_btn = (
+            f'<button class="task-complete-btn" data-page-id="{page_id}" '
+            f'title="Mark Done in Notion">✓</button>'
+        ) if not is_done and page_id else ""
+
         items.append(
-            f'<div class="task-full-item" data-priority="{priority.lower()}" data-done="{str(is_done).lower()}">'
+            f'<div class="task-full-item" data-priority="{priority.lower()}" data-done="{str(is_done).lower()}" data-page-id="{page_id}">'
             f'<div class="task-full-check {done_cls}"></div>'
             f'<div class="task-full-body">'
             f'<div class="task-full-name {done_cls}">{name}</div>'
             f'<div class="task-full-meta">{cat_html}{due_html}'
             f'<span class="task-badge {badge}">{priority}</span>'
-            f'</div></div></div>'
+            f'</div></div>'
+            f'{complete_btn}</div>'
         )
     if not items:
         return _empty("📋", "No tasks found — <span>add tasks in Notion</span>.")
@@ -368,11 +375,14 @@ def build_kpi_full(pages: list) -> str:
             f'<div class="kpi-mini-stat"><div class="kpi-mini-val">{int(content)}</div><div class="kpi-mini-lbl">CONTENT</div></div>'
             f'<div class="kpi-mini-stat"><div class="kpi-mini-val">{gpa_target}%</div><div class="kpi-mini-lbl">GPA TARGET</div></div>'
             f'</div>'
-            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Tasks</span><span class="kpi-val">{tasks_pct}%</span></div>'
+            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Tasks Completed</span>'
+            f'<span class="kpi-val" data-kpi-label="Tasks Completed" title="Click to edit">{tasks_pct}%</span></div>'
             f'<div class="kpi-bar"><div class="kpi-fill" style="width:{tasks_pct}%"></div></div></div>'
-            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Study Hours</span><span class="kpi-val">{int(study_hrs)}h</span></div>'
+            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Study Hours</span>'
+            f'<span class="kpi-val" data-kpi-label="Study Hours" title="Click to edit">{int(study_hrs)}h</span></div>'
             f'<div class="kpi-bar"><div class="kpi-fill" style="width:{study_pct}%"></div></div></div>'
-            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Content Posted</span><span class="kpi-val">{int(content)}</span></div>'
+            f'<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">Content Posted</span>'
+            f'<span class="kpi-val" data-kpi-label="Content Posted" title="Click to edit">{int(content)}</span></div>'
             f'<div class="kpi-bar"><div class="kpi-fill" style="width:{content_pct}%"></div></div></div>'
             f'{notes_html}'
             f'</div>'
