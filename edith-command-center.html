@@ -4,642 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>E.D.I.T.H — Command Center</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;500&display=swap');
-
-    :root {
-      --amber: #FFB347;
-      --amber-dim: #cc8a2a;
-      --amber-glow: rgba(255,179,71,0.15);
-      --amber-border: rgba(255,179,71,0.3);
-      --bg: #090909;
-      --bg2: #0e0e0e;
-      --bg3: #141414;
-      --text: #e8e0d0;
-      --text-dim: #7a7060;
-      --green: #39ff8a;
-      --red: #ff4444;
-      --blue: #4fc3f7;
-      --purple: #c084fc;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,179,71,0.012) 2px, rgba(255,179,71,0.012) 4px);
-      pointer-events: none; z-index: 999;
-    }
-
-    body::after {
-      content: '';
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background-image: linear-gradient(rgba(255,179,71,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,179,71,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none; z-index: 0;
-    }
-
-    /* ── HEADER ── */
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(9,9,9,0.95);
-      border-bottom: 1px solid var(--amber-border);
-      padding: 0 32px;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px; backdrop-filter: blur(10px);
-    }
-
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-icon {
-      width: 36px; height: 36px;
-      border: 2px solid var(--amber); border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 800;
-      color: var(--amber); box-shadow: 0 0 10px rgba(255,179,71,0.3);
-    }
-    .logo-text { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 600; color: var(--amber); letter-spacing: 3px; }
-    .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-top: 2px; }
-
-    .header-right { display: flex; align-items: center; gap: 24px; }
-    .status-badge { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 1px; }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 4px var(--green);}50%{opacity:0.4;box-shadow:none;} }
-    .header-time { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--amber); letter-spacing: 2px; }
-    .divider { width: 1px; height: 20px; background: var(--amber-border); }
-
-    /* ── NAV TABS ── */
-    .nav-bar {
-      position: sticky; top: 60px; z-index: 90;
-      background: rgba(9,9,9,0.95);
-      border-bottom: 1px solid rgba(255,179,71,0.08);
-      padding: 0 32px;
-      display: flex; align-items: center; gap: 4px;
-      height: 48px; backdrop-filter: blur(10px);
-    }
-
-    .nav-tab {
-      font-family: 'Share Tech Mono', monospace; font-size: 11px;
-      letter-spacing: 2px; padding: 6px 18px; border-radius: 6px;
-      border: 1px solid transparent; cursor: pointer;
-      color: var(--text-dim); background: transparent;
-      transition: all 0.2s; text-transform: uppercase;
-    }
-    .nav-tab:hover { color: var(--amber); border-color: var(--amber-border); }
-    .nav-tab.active { color: var(--amber); background: var(--amber-glow); border-color: var(--amber-border); }
-
-    /* ── MAIN ── */
-    main { position: relative; z-index: 1; padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
-
-    /* ── TAB PANELS ── */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);} }
-
-    /* ── SHARED COMPONENTS ── */
-    .card {
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
-      border-radius: 12px; padding: 22px; position: relative; overflow: hidden;
-      transition: border-color 0.2s;
-    }
-    .card:hover { border-color: var(--amber-border); }
-
-    .card-title {
-      font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600;
-      color: var(--amber); letter-spacing: 2px; margin-bottom: 18px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .card-tag {
-      font-size: 9px; background: var(--amber-glow); border: 1px solid var(--amber-border);
-      color: var(--amber); padding: 2px 8px; border-radius: 4px; letter-spacing: 1px;
-    }
-    .card-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
-    .card-value { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 600; color: var(--amber); }
-    .card-sub { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
-
-    .corner-tl { position: absolute; top: 8px; left: 8px; width: 12px; height: 12px; border-top: 1px solid var(--amber); border-left: 1px solid var(--amber); }
-    .corner-br { position: absolute; bottom: 8px; right: 8px; width: 12px; height: 12px; border-bottom: 1px solid var(--amber); border-right: 1px solid var(--amber); }
-
-    .stat-card { background: var(--bg2); border: 1px solid rgba(255,179,71,0.12); border-radius: 12px; padding: 22px; position: relative; overflow: hidden; }
-    .stat-card::after { content:''; position:absolute; bottom:0;left:0;right:0; height:2px; background:linear-gradient(90deg,var(--amber-dim),transparent); }
-
-    .stat-change { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 8px; padding: 2px 8px; border-radius: 20px; }
-    .stat-change.up { background: rgba(57,255,138,0.1); color: var(--green); }
-    .stat-change.down { background: rgba(255,68,68,0.1); color: var(--red); }
-
-    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
-    .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-top: 20px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-    .grid-2e { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-    /* ── MORNING BRIEF ── */
-    .morning-brief {
-      background: linear-gradient(135deg, rgba(255,179,71,0.08), rgba(255,179,71,0.03));
-      border: 1px solid var(--amber-border); border-radius: 12px;
-      padding: 20px 28px; margin-bottom: 28px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: relative; overflow: hidden;
-    }
-    .morning-brief::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:var(--amber); box-shadow:0 0 12px var(--amber); }
-    .brief-left h2 { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--amber); letter-spacing: 3px; margin-bottom: 6px; }
-    .brief-message { font-size: 15px; color: var(--text); font-weight: 300; }
-    .brief-message span { color: var(--amber); font-weight: 500; }
-    .brief-right { display: flex; gap: 24px; text-align: center; }
-    .brief-stat-val { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 600; color: var(--amber); }
-    .brief-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-
-    /* ── TASKS ── */
-    .task-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,179,71,0.06); cursor: pointer; transition: opacity 0.18s ease; }
-    .task-item:last-child { border-bottom: none; }
-    .task-check { width: 16px; height: 16px; border: 1px solid var(--amber-border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
-    .task-check.done { background: var(--amber); border-color: var(--amber); }
-    .task-check.done::after { content: '✓'; font-size: 10px; color: #000; font-weight: bold; }
-    .task-text { flex: 1; font-size: 13px; color: var(--text); }
-    .task-text.done { text-decoration: line-through; color: var(--text-dim); }
-    .task-badge { font-size: 9px; padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; }
-    .badge-high { background: rgba(255,68,68,0.15); color: var(--red); }
-    .badge-med  { background: rgba(255,179,71,0.15); color: var(--amber); }
-    .badge-low  { background: rgba(79,195,247,0.15); color: var(--blue); }
-
-    /* ── CALENDAR ── */
-    .event-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,179,71,0.06); }
-    .event-item:last-child { border-bottom: none; }
-    .event-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber); width: 48px; flex-shrink: 0; }
-    .event-bar { width: 2px; height: 32px; border-radius: 1px; flex-shrink: 0; }
-    .event-title { font-size: 13px; color: var(--text); }
-    .event-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-
-    /* ── KPI BARS ── */
-    .kpi-row { margin-bottom: 14px; }
-    .kpi-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
-    .kpi-label { color: var(--text-dim); }
-    .kpi-val { color: var(--amber); font-family: 'Share Tech Mono', monospace; }
-    .kpi-bar { height: 4px; background: rgba(255,179,71,0.1); border-radius: 2px; overflow: hidden; }
-    .kpi-fill { height: 100%; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); border-radius: 2px; }
-
-    /* ── AGENT CARDS ── */
-    .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .agent-card { background: var(--bg3); border: 1px solid rgba(255,179,71,0.1); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; }
-    .agent-avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-    .agent-name { font-size: 12px; font-weight: 500; color: var(--text); }
-    .agent-role { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
-    .agent-status { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 9px; font-family: 'Share Tech Mono', monospace; color: var(--green); }
-    .agent-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-
-    /* ── CONTENT ITEMS ── */
-    .content-item { background: var(--bg3); border: 1px solid rgba(255,179,71,0.08); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; }
-    .content-num { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--amber-dim); width: 20px; flex-shrink: 0; margin-top: 1px; }
-    .content-text { font-size: 12px; color: var(--text); line-height: 1.5; flex: 1; }
-    .content-tag { font-size: 9px; background: rgba(79,195,247,0.1); color: var(--blue); padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
-
-    /* ─── PIPELINE SPECIFIC ─── */
-    .project-row {
-      display: flex; align-items: center; gap: 16px;
-      padding: 14px 0; border-bottom: 1px solid rgba(255,179,71,0.06);
-    }
-    .project-row:last-child { border-bottom: none; }
-    .project-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-    .project-name { font-size: 13px; color: var(--text); font-weight: 500; }
-    .project-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-    .project-progress { flex: 1; }
-    .prog-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; }
-    .prog-label { color: var(--text-dim); }
-    .prog-val { color: var(--amber); font-family: 'Share Tech Mono', monospace; }
-    .prog-bar { height: 5px; background: rgba(255,179,71,0.1); border-radius: 3px; overflow: hidden; }
-    .prog-fill { height: 100%; border-radius: 3px; }
-    .proj-badge { font-size: 9px; padding: 3px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; flex-shrink: 0; }
-    .badge-inprog { background: rgba(79,195,247,0.15); color: var(--blue); }
-    .badge-plan { background: rgba(255,179,71,0.15); color: var(--amber); }
-    .badge-done { background: rgba(57,255,138,0.15); color: var(--green); }
-    .badge-block { background: rgba(255,68,68,0.15); color: var(--red); }
-
-    /* ─── AGENTS PAGE SPECIFIC ─── */
-    .agent-detail-card {
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
-      border-radius: 12px; padding: 22px; position: relative;
-      transition: border-color 0.2s;
-    }
-    .agent-detail-card:hover { border-color: var(--amber-border); }
-    .agent-detail-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-    .agent-detail-avatar { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; }
-    .agent-detail-name { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 1px; }
-    .agent-detail-role { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
-    .agent-online { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--green); font-family: 'Share Tech Mono', monospace; margin-left: auto; }
-    .agent-cap-list { margin-top: 12px; }
-    .agent-cap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); padding: 5px 0; }
-    .agent-cap::before { content: '▸'; color: var(--amber); font-size: 10px; }
-    .agent-last { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,179,71,0.06); font-size: 11px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
-    .agent-last span { color: var(--amber); }
-
-    /* ─── RESEARCH PAGE ─── */
-    .research-item {
-      background: var(--bg3); border: 1px solid rgba(255,179,71,0.08);
-      border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
-    }
-    .research-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-    .research-title { font-size: 13px; font-weight: 500; color: var(--text); }
-    .research-date { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
-    .research-summary { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
-    .research-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-    .research-tag { font-size: 9px; padding: 2px 8px; border-radius: 4px; }
-
-    .search-bar {
-      display: flex; gap: 10px; margin-bottom: 20px;
-    }
-    .search-input {
-      flex: 1; background: var(--bg3); border: 1px solid rgba(255,179,71,0.2);
-      border-radius: 8px; padding: 10px 16px; color: var(--text);
-      font-family: 'Share Tech Mono', monospace; font-size: 12px;
-      outline: none; transition: border-color 0.2s;
-    }
-    .search-input:focus { border-color: var(--amber); }
-    .search-input::placeholder { color: var(--text-dim); }
-    .search-btn {
-      background: var(--amber-glow); border: 1px solid var(--amber-border);
-      color: var(--amber); font-family: 'Share Tech Mono', monospace;
-      font-size: 11px; letter-spacing: 2px; padding: 10px 20px;
-      border-radius: 8px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
-    }
-    .search-btn:hover { background: rgba(255,179,71,0.25); box-shadow: 0 0 10px rgba(255,179,71,0.2); }
-
-    /* ─── CONTENT PAGE SPECIFIC ─── */
-    .content-full-card {
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.12);
-      border-radius: 12px; padding: 20px; margin-bottom: 14px;
-      position: relative; transition: border-color 0.2s;
-    }
-    .content-full-card:hover { border-color: var(--amber-border); }
-    .content-full-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .content-full-title { font-size: 14px; font-weight: 500; color: var(--text); }
-    .content-status-badge { font-size: 9px; padding: 3px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
-    .s-idea     { background: rgba(122,112,96,0.2); color: var(--text-dim); }
-    .s-script   { background: rgba(255,179,71,0.15); color: var(--amber); }
-    .s-filming  { background: rgba(192,132,252,0.15); color: var(--purple); }
-    .s-editing  { background: rgba(79,195,247,0.15); color: var(--blue); }
-    .s-posted   { background: rgba(57,255,138,0.15); color: var(--green); }
-    .content-hook { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 10px; line-height: 1.5; }
-    .content-hook::before { content: '"'; color: var(--amber); }
-    .content-hook::after { content: '"'; color: var(--amber); }
-    .content-meta { display: flex; gap: 10px; flex-wrap: wrap; }
-    .content-platform { font-size: 9px; padding: 2px 8px; border-radius: 4px; }
-    .p-ig   { background: rgba(255,68,68,0.1); color: #f472b6; }
-    .p-tt   { background: rgba(255,68,68,0.1); color: var(--red); }
-    .p-li   { background: rgba(79,195,247,0.1); color: var(--blue); }
-    .p-yt   { background: rgba(255,68,68,0.12); color: #ff6b6b; }
-    .content-date { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; margin-left: auto; }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center; padding: 36px 20px; margin: 8px 0;
-      border: 1px dashed rgba(255,179,71,0.15); border-radius: 8px;
-      background: rgba(255,179,71,0.02);
-    }
-    .empty-icon { font-size: 26px; margin-bottom: 10px; opacity: 0.4; }
-    .empty-msg {
-      font-family: 'Share Tech Mono', monospace; font-size: 11px;
-      color: var(--text-dim); letter-spacing: 1px;
-    }
-    .empty-msg span { color: var(--amber); }
-
-    /* ─── TASKS FULL PAGE ─── */
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    .page-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 600; color: var(--amber); letter-spacing: 3px; }
-    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .filter-btn {
-      font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1px;
-      padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,179,71,0.2);
-      background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s;
-    }
-    .filter-btn:hover { border-color: var(--amber-border); color: var(--amber); }
-    .filter-btn.active { background: var(--amber-glow); border-color: var(--amber-border); color: var(--amber); }
-    .tasks-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-    .task-stat-box { background: var(--bg2); border: 1px solid rgba(255,179,71,0.1); border-radius: 10px; padding: 16px; text-align: center; }
-    .task-stat-num { font-family: 'Orbitron', monospace; font-size: 24px; color: var(--amber); }
-    .task-stat-lbl { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-top: 4px; font-family: 'Share Tech Mono', monospace; }
-    .task-full-item {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.08);
-      cursor: pointer; transition: border-color 0.2s, opacity 0.18s;
-    }
-    .task-full-item:hover { border-color: var(--amber-border); }
-    .task-full-check { width: 18px; height: 18px; border: 1px solid var(--amber-border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: background 0.2s; }
-    .task-full-check.done { background: var(--amber); border-color: var(--amber); }
-    .task-full-check.done::after { content: '✓'; font-size: 11px; color: #000; font-weight: bold; }
-    .task-full-body { flex: 1; min-width: 0; }
-    .task-full-name { font-size: 13px; color: var(--text); font-weight: 500; }
-    .task-full-name.done { text-decoration: line-through; color: var(--text-dim); }
-    .task-full-meta { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
-    .task-cat { font-size: 9px; padding: 2px 8px; border-radius: 4px; background: rgba(255,179,71,0.08); color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
-    .task-due { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
-    .task-due.overdue { color: var(--red); }
-
-    /* ─── CALENDAR FULL PAGE ─── */
-    .cal-connect { background: rgba(255,179,71,0.04); border: 1px dashed var(--amber-border); border-radius: 12px; padding: 32px; text-align: center; margin-bottom: 24px; }
-    .cal-connect-title { font-family: 'Orbitron', monospace; font-size: 12px; color: var(--amber); letter-spacing: 2px; margin-bottom: 10px; }
-    .cal-connect-sub { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
-    .cal-connect-sub code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: var(--amber); font-size: 11px; }
-    .cal-day-group { margin-bottom: 20px; }
-    .cal-day-header { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--amber); letter-spacing: 2px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,179,71,0.1); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-    .cal-today-badge { background: var(--amber); color: #000; font-size: 8px; padding: 1px 7px; border-radius: 10px; font-weight: 700; }
-    .cal-event {
-      display: flex; align-items: center; gap: 14px;
-      padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.08);
-      transition: border-color 0.2s;
-    }
-    .cal-event:hover { border-color: var(--amber-border); }
-    .cal-event-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber); width: 110px; flex-shrink: 0; }
-    .cal-event-dot { width: 3px; height: 36px; border-radius: 2px; flex-shrink: 0; }
-    .cal-event-title { font-size: 13px; color: var(--text); font-weight: 500; }
-    .cal-event-loc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-    .cal-event-dur { margin-left: auto; font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
-
-    /* ─── KPI FULL PAGE ─── */
-    .kpi-week-card { background: var(--bg2); border: 1px solid rgba(255,179,71,0.12); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
-    .kpi-week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .kpi-week-title { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--amber); letter-spacing: 2px; }
-    .kpi-week-badge { font-size: 9px; padding: 2px 10px; border-radius: 20px; font-family: 'Share Tech Mono', monospace; }
-    .kpi-rating-excellent { background: rgba(57,255,138,0.15); color: var(--green); }
-    .kpi-rating-good      { background: rgba(79,195,247,0.15); color: var(--blue); }
-    .kpi-rating-average   { background: rgba(255,179,71,0.15); color: var(--amber); }
-    .kpi-rating-poor      { background: rgba(255,68,68,0.15); color: var(--red); }
-    .kpi-week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
-    .kpi-mini-stat { text-align: center; }
-    .kpi-mini-val { font-family: 'Orbitron', monospace; font-size: 18px; color: var(--amber); }
-    .kpi-mini-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; margin-top: 3px; font-family: 'Share Tech Mono', monospace; }
-    .kpi-week-notes { font-size: 12px; color: var(--text-dim); padding-top: 12px; border-top: 1px solid rgba(255,179,71,0.06); line-height: 1.6; }
-    .kpi-week-notes strong { color: var(--amber); }
-
-    /* ─── PROJECTS FULL PAGE ─── */
-    .project-full-card {
-      background: var(--bg2); border: 1px solid rgba(255,179,71,0.1);
-      border-radius: 12px; padding: 20px; margin-bottom: 14px;
-      transition: border-color 0.2s;
-    }
-    .project-full-card:hover { border-color: var(--amber-border); }
-    .project-full-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .project-full-title { font-size: 14px; font-weight: 500; color: var(--text); }
-    .project-full-desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-    .project-full-body { display: grid; grid-template-columns: 1fr 160px; gap: 16px; align-items: center; }
-    .project-full-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .proj-type { font-size: 9px; padding: 2px 8px; border-radius: 4px; background: rgba(255,179,71,0.08); color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
-    .proj-deadline { font-size: 10px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
-    .proj-deadline.overdue { color: var(--red); }
-
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 2px; }
-
-    /* ─── RESPONSIVE ─── */
-
-    /* Ultrawide monitors (≥2560px — e.g. 3440×1440) */
-    @media (min-width: 2560px) {
-      main { max-width: 2200px; padding: 36px 48px; }
-      .card { padding: 28px; }
-      .card-value { font-size: 34px; }
-      .brief-stat-val { font-size: 28px; }
-      .agent-detail-card { padding: 28px; }
-      .morning-brief { padding: 26px 36px; }
-      .grid-2 { grid-template-columns: 1fr 1fr 1fr; }
-      .grid-2e { grid-template-columns: 1fr 1fr 1fr; }
-    }
-
-    /* High-DPI laptops (≥1800px — e.g. 2880×1800 Retina at native scaling) */
-    @media (min-width: 1800px) and (max-width: 2559px) {
-      main { max-width: 1700px; padding: 30px 40px; }
-      .card-value { font-size: 30px; }
-      .brief-stat-val { font-size: 24px; }
-    }
-
-    /* Smaller desktops / laptops (≤1280px) */
-    @media (max-width: 1280px) {
-      main { padding: 22px 24px; }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .grid-3 { grid-template-columns: 1fr 1fr; }
-      .grid-3 > *:first-child { grid-column: 1 / -1; }
-      .project-row { flex-wrap: wrap; gap: 12px; }
-      .project-row > div[style*="flex:0 0 220px"] { flex: 1 1 160px !important; }
-    }
-
-    /* Tablets / small laptops (≤1024px) */
-    @media (max-width: 1024px) {
-      header { padding: 0 20px; }
-      .logo-sub { display: none; }
-      .nav-bar { padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
-      .nav-bar::-webkit-scrollbar { display: none; }
-      .nav-tab { white-space: nowrap; }
-      main { padding: 18px 20px; }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-      .grid-3 { grid-template-columns: 1fr; gap: 14px; }
-      .grid-2 { grid-template-columns: 1fr; gap: 14px; }
-      .grid-2e { grid-template-columns: 1fr; gap: 14px; }
-      .morning-brief { flex-direction: column; gap: 18px; }
-      .brief-right { justify-content: flex-start; gap: 28px; }
-      .agent-grid { grid-template-columns: 1fr 1fr; }
-      .card-value { font-size: 22px; }
-      .brief-stat-val { font-size: 18px; }
-      .project-row { flex-wrap: wrap; }
-      .project-row > div[style*="flex:0 0 220px"] { flex: 1 1 100% !important; min-width: 0 !important; }
-    }
-
-    /* ── FOOD TAB ──────────────────────────────────────────────── */
-    .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; padding: 4px 0; }
-    .food-card { background: rgba(255,179,71,0.04); border: 1px solid rgba(255,179,71,0.15); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.2s; }
-    .food-card:hover { border-color: rgba(255,179,71,0.35); }
-    .food-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .food-name { font-size: 0.95rem; font-weight: 600; color: var(--amber); line-height: 1.3; }
-    .food-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
-    .food-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.75rem; color: var(--text-dim); }
-    .food-cuisine { color: var(--text-muted); }
-    .food-return.yes { color: var(--green); }
-    .food-return.no { color: var(--text-dim); opacity: 0.6; }
-    .food-date { color: var(--text-dim); opacity: 0.7; }
-    .food-notes { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; border-left: 2px solid rgba(255,179,71,0.2); padding-left: 8px; font-style: italic; }
-    .food-maps-btn { display: inline-block; margin-top: 2px; font-size: 0.72rem; color: var(--amber-dim); text-decoration: none; border: 1px solid rgba(255,179,71,0.2); border-radius: 4px; padding: 3px 9px; transition: all 0.2s; align-self: flex-start; }
-    .food-maps-btn:hover { color: var(--amber); border-color: rgba(255,179,71,0.5); background: rgba(255,179,71,0.06); }
-    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .filter-btn { background: transparent; border: 1px solid rgba(255,179,71,0.2); color: var(--text-dim); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; padding: 4px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
-    .filter-btn.active, .filter-btn:hover { border-color: var(--amber); color: var(--amber); background: rgba(255,179,71,0.08); }
-
-    /* ── SCANLINE OVERLAY ───────────────────────────────────────── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.08) 2px,
-        rgba(0, 0, 0, 0.08) 4px
-      );
-      animation: scanline-drift 12s linear infinite;
-    }
-    @keyframes scanline-drift {
-      0%   { background-position: 0 0; }
-      100% { background-position: 0 100px; }
-    }
-
-    /* ── LOGO GLITCH ────────────────────────────────────────────── */
-    @keyframes edith-glitch {
-      0%, 88%, 100% { text-shadow: none; transform: none; clip-path: none; }
-      89%  { text-shadow: -2px 0 #ff0044, 2px 0 #00ffe7; transform: skewX(-4deg); }
-      90%  { text-shadow: 2px 0 #ff0044, -2px 0 #00ffe7; transform: skewX(3deg); clip-path: polygon(0 30%, 100% 30%, 100% 55%, 0 55%); }
-      91%  { text-shadow: none; transform: none; clip-path: none; }
-      92%  { text-shadow: -1px 0 #ff0044; transform: translateX(1px); }
-      93%, 100% { text-shadow: none; transform: none; clip-path: none; }
-    }
-    .logo-text { animation: edith-glitch 14s 4s infinite; }
-
-    /* ── PROGRESS BAR ANIMATION ─────────────────────────────────── */
-    .prog-fill, .kpi-fill { transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-
-    /* ── STAGGER ENTRANCE ───────────────────────────────────────── */
-    @keyframes staggerUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .stagger-enter { animation: staggerUp 0.3s ease both; }
-
-    /* ── HUD BOOT SEQUENCE ──────────────────────────────────────── */
-    #boot-overlay {
-      position: fixed; inset: 0; background: #090909; z-index: 99999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 24px; pointer-events: none;
-    }
-    #boot-overlay.hidden { opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
-    .boot-logo {
-      font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 800;
-      color: var(--amber); letter-spacing: 8px;
-      text-shadow: 0 0 20px rgba(255,179,71,0.6);
-      opacity: 0; animation: bootFadeIn 0.4s 0.3s ease forwards;
-    }
-    .boot-line {
-      font-family: 'Share Tech Mono', monospace; font-size: 11px;
-      color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase;
-      opacity: 0; animation: bootFadeIn 0.4s 0.8s ease forwards;
-    }
-    .boot-bar-wrap {
-      width: 240px; height: 2px; background: rgba(255,179,71,0.1);
-      border-radius: 2px; overflow: hidden;
-      opacity: 0; animation: bootFadeIn 0.4s 1s ease forwards;
-    }
-    .boot-bar {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--amber-dim), var(--amber));
-      border-radius: 2px;
-      animation: bootBarFill 1.2s 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-    @keyframes bootFadeIn  { to { opacity: 1; } }
-    @keyframes bootBarFill { to { width: 100%; } }
-
-    /* ── TASK 7: TAB SLIDE DIRECTION ───────────────────────────── */
-    @keyframes slideInRight { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes slideInLeft  { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
-    .tab-panel.slide-left  { animation: slideInLeft  0.25s ease both; }
-    .tab-panel.slide-right { animation: slideInRight 0.25s ease both; }
-
-    /* ── TASK 8: CARD HOVER LIFT ────────────────────────────────── */
-    .food-card,
-    .project-full-card,
-    .stat-card,
-    .agent-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
-    }
-    .food-card:hover,
-    .project-full-card:hover,
-    .stat-card:hover,
-    .agent-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(255,179,71,0.12);
-    }
-
-    /* ── TASK 9: CLOCK DIGIT FLIP ───────────────────────────────── */
-    .flip-unit { display: inline-block; }
-    .flip-unit span { display: inline-block; }
-    .flip-unit.flipping span { animation: digitFlip 0.2s ease; }
-    @keyframes digitFlip {
-      0%   { transform: rotateX(0deg); }
-      50%  { transform: rotateX(-90deg); }
-      100% { transform: rotateX(0deg); }
-    }
-
-    /* ── TASK 10: TYPEWRITER CURSOR ─────────────────────────────── */
-    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-
-    /* ── TASK 11: HEADER SWEEP ──────────────────────────────────── */
-    header { overflow: hidden; }
-    header::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -60px; bottom: 0;
-      width: 60px;
-      background: linear-gradient(90deg, transparent, rgba(255,179,71,0.15), transparent);
-      animation: header-sweep 20s 5s linear infinite;
-      pointer-events: none;
-    }
-    @keyframes header-sweep {
-      0%   { left: -60px; }
-      100% { left: 100%; }
-    }
-
-    /* ── TASK 12: AGENT PULSE RINGS ─────────────────────────────── */
-    .agent-dot { position: relative; }
-    .agent-dot::before,
-    .agent-dot::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 1px solid var(--green);
-      animation: agentRing 2.4s ease-out infinite;
-      opacity: 0;
-    }
-    .agent-dot::after { animation-delay: 1.2s; }
-    @keyframes agentRing {
-      0%   { transform: scale(1);   opacity: 0.6; }
-      100% { transform: scale(2.8); opacity: 0; }
-    }
-
-    /* ── TASK 13: PROGRESS BAR SHIMMER ──────────────────────────── */
-    .prog-fill { position: relative; overflow: hidden; }
-    .prog-fill::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%; bottom: 0;
-      width: 50%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-      animation: bar-shimmer 3s 1.2s ease-in-out infinite;
-    }
-    @keyframes bar-shimmer {
-      0%   { left: -50%; }
-      100% { left: 150%; }
-    }
-
-    /* ── TASK 14: NAV TAB RIPPLE ────────────────────────────────── */
-    .nav-tab { position: relative; overflow: hidden; }
-    .nav-tab .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255,179,71,0.3);
-      transform: scale(0);
-      animation: ripple-expand 0.5s linear;
-      pointer-events: none;
-    }
-    @keyframes ripple-expand { to { transform: scale(4); opacity: 0; } }
-  </style>
+  <link rel="stylesheet" href="/static/edith.css">
 </head>
 <body>
 
@@ -656,7 +21,7 @@
   <div class="logo">
     <div class="logo-icon">E</div>
     <div>
-      <div class="logo-text">E.D.I.T.H</div>
+      <div class="logo-text">E.D.I.T.H<span id="sync-countdown" style="display:none"></span></div>
       <div class="logo-sub">EVEN DEAD, I'M THE HERO</div>
     </div>
   </div>
@@ -664,6 +29,20 @@
     <div class="status-badge"><div class="status-dot"></div>ALL SYSTEMS NOMINAL</div>
     <div class="divider"></div>
     <div class="header-time" id="clock">--:--:--</div>
+    <button id="hamburger-btn" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
+  </div>
+  <!-- Mobile dropdown nav — hidden on desktop -->
+  <div id="mobile-nav">
+    <button class="mobile-nav-btn active" onclick="mobileSwitchTab('overview',this)">Overview</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('tasks',this)">Tasks</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('calendar',this)">Calendar</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('kpi',this)">KPI</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('projects',this)">Projects</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('agents',this)">Agents</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('pipeline',this)">Pipeline</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('content',this)">Content</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('research',this)">Research</button>
+    <button class="mobile-nav-btn" onclick="mobileSwitchTab('food',this)">🍜 Food</button>
   </div>
 </header>
 
@@ -787,6 +166,44 @@
         </div>
       </div>
     </div>
+
+    <!-- POMODORO TIMER -->
+    <div class="card pomodoro-card">
+      <div class="corner-tl"></div>
+      <div class="card-title">Focus Timer <span class="card-tag">POMODORO</span></div>
+      <div class="pomo-inner">
+        <div class="pomo-ring-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle class="pomo-track" cx="50" cy="50" r="44"/>
+            <circle class="pomo-progress" id="pomo-ring" cx="50" cy="50" r="44"
+              stroke-dasharray="276.46" stroke-dashoffset="0"/>
+          </svg>
+          <div class="pomo-time" id="pomo-display">25:00</div>
+        </div>
+        <div class="pomo-controls">
+          <div class="pomo-label">Mode</div>
+          <div class="pomo-mode" id="pomo-mode-label">Focus Session</div>
+          <div class="pomo-btns">
+            <button class="pomo-btn" id="pomo-start" onclick="pomoAction('start')">START</button>
+            <button class="pomo-btn" id="pomo-reset" onclick="pomoAction('reset')">RESET</button>
+            <button class="pomo-btn" id="pomo-skip"  onclick="pomoAction('skip')">SKIP</button>
+          </div>
+          <div class="pomo-sessions">Sessions: <span id="pomo-sessions">0</span> / 4</div>
+          <div class="pomo-topic-row">
+            <span class="pomo-topic-lbl">Topic</span>
+            <select id="pomo-topic" class="pomo-topic-select">
+              <option value="General">General</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Data Structures">Data Structures</option>
+              <option value="Web Dev">Web Dev</option>
+              <option value="Research Paper">Research Paper</option>
+              <option value="Assignment">Assignment</option>
+            </select>
+            <span class="pomo-log-indicator" id="pomo-log-status">✓ Logged</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════════════ -->
@@ -805,6 +222,18 @@
         <button class="filter-btn" onclick="filterTasks('pending',this)">⏳ PENDING</button>
       </div>
     </div>
+    <div class="quick-add-bar">
+      <input type="text" id="quick-task-input" class="quick-add-input"
+             placeholder="Add a task... (Enter to save)"
+             autocomplete="off" />
+      <select id="quick-task-priority" class="quick-add-select">
+        <option value="High">🔴 High</option>
+        <option value="Med" selected>🟡 Med</option>
+        <option value="Low">🔵 Low</option>
+      </select>
+      <button class="quick-add-btn" onclick="quickAddTask()">+ ADD</button>
+    </div>
+
     <div class="tasks-stats" id="tasks-full-stats">
       <div class="task-stat-box"><div class="task-stat-num" id="tstat-total">—</div><div class="task-stat-lbl">TOTAL</div></div>
       <div class="task-stat-box"><div class="task-stat-num" id="tstat-pending" style="color:var(--blue)">—</div><div class="task-stat-lbl">PENDING</div></div>
@@ -813,18 +242,18 @@
     </div>
     <div id="tasks-full-list">
       <!-- INJECT:TASKS_FULL:START -->
-<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">RMCT Part 1: Project Proposal (Introduction) - Lecturer 1</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2024-04-11</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET ADO.NET CRUD Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">SQL Statements Submission</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Data Structure Homework</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
-<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Draft email to supervisor re: internship</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due overdue">Due 2026-03-31</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
-<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Post Week 2 content reel</div><div class="task-full-meta"><span class="task-cat">['📱 Content']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
-<div class="task-full-item" data-priority="low" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Update portfolio website</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due overdue">Due 2026-04-10</span><span class="task-badge badge-low">LOW</span></div></div></div>
-<div class="task-full-item" data-priority="low" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Research paper outline — NLP topic</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-04-05</span><span class="task-badge badge-low">LOW</span></div></div></div>
-<div class="task-full-item" data-priority="high" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Finalise group project presentation</div><div class="task-full-meta"><span class="task-cat">['🚀 Project']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="high" data-done="true"><div class="task-full-check done"></div><div class="task-full-body"><div class="task-full-name done">Submit AI Ethics assignment</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due ">Due 2026-03-28</span><span class="task-badge badge-high">HIGH</span></div></div></div>
-<div class="task-full-item" data-priority="medium" data-done="false"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Review ML Week 9 lecture notes</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-03-29</span><span class="task-badge badge-med">MEDIUM</span></div></div></div>
+<div class="task-full-item" data-priority="high" data-done="false" data-page-id="339ceab05e6d81b89060f10675b2be5a"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">RMCT Part 1: Project Proposal (Introduction) - Lecturer 1</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2024-04-11</span><span class="task-badge badge-high">HIGH</span></div></div><button class="task-complete-btn" data-page-id="339ceab05e6d81b89060f10675b2be5a" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="high" data-done="false" data-page-id="339ceab05e6d8192915cd70c2ac0bf81"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div><button class="task-complete-btn" data-page-id="339ceab05e6d8192915cd70c2ac0bf81" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="high" data-done="false" data-page-id="339ceab05e6d816ca144e495f3b04bc9"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Submission for ASP.NET ADO.NET CRUD Tutorial</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div><button class="task-complete-btn" data-page-id="339ceab05e6d816ca144e495f3b04bc9" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="high" data-done="false" data-page-id="339ceab05e6d81889a1ad489670429c0"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">SQL Statements Submission</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-due overdue">Due 2025-04-10</span><span class="task-badge badge-high">HIGH</span></div></div><button class="task-complete-btn" data-page-id="339ceab05e6d81889a1ad489670429c0" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="medium" data-done="false" data-page-id="333ceab05e6d81eea08ee8342bcc2912"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Data Structure Homework</div><div class="task-full-meta"><span class="task-cat">[]</span><span class="task-badge badge-med">MEDIUM</span></div></div><button class="task-complete-btn" data-page-id="333ceab05e6d81eea08ee8342bcc2912" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="medium" data-done="false" data-page-id="331ceab05e6d8114843ae9e224ab6e94"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Draft email to supervisor re: internship</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due overdue">Due 2026-03-31</span><span class="task-badge badge-med">MEDIUM</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d8114843ae9e224ab6e94" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="medium" data-done="false" data-page-id="331ceab05e6d814186aaeff4465e7a38"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Post Week 2 content reel</div><div class="task-full-meta"><span class="task-cat">['📱 Content']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-med">MEDIUM</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d814186aaeff4465e7a38" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="low" data-done="false" data-page-id="331ceab05e6d815c9d90f796f4f0f21e"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Update portfolio website</div><div class="task-full-meta"><span class="task-cat">['💼 Freelance']</span><span class="task-due overdue">Due 2026-04-10</span><span class="task-badge badge-low">LOW</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d815c9d90f796f4f0f21e" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="low" data-done="false" data-page-id="331ceab05e6d81b7a425c96d5007739a"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Research paper outline — NLP topic</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-04-05</span><span class="task-badge badge-low">LOW</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d81b7a425c96d5007739a" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="high" data-done="false" data-page-id="331ceab05e6d81c3b4a1e57e50f64b85"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Finalise group project presentation</div><div class="task-full-meta"><span class="task-cat">['🚀 Project']</span><span class="task-due overdue">Due 2026-03-30</span><span class="task-badge badge-high">HIGH</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d81c3b4a1e57e50f64b85" title="Mark Done in Notion">✓</button></div>
+<div class="task-full-item" data-priority="high" data-done="true" data-page-id="331ceab05e6d81c6bacbe677fae61d05"><div class="task-full-check done"></div><div class="task-full-body"><div class="task-full-name done">Submit AI Ethics assignment</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due ">Due 2026-03-28</span><span class="task-badge badge-high">HIGH</span></div></div></div>
+<div class="task-full-item" data-priority="medium" data-done="false" data-page-id="331ceab05e6d81faa5e6c2384e043353"><div class="task-full-check "></div><div class="task-full-body"><div class="task-full-name ">Review ML Week 9 lecture notes</div><div class="task-full-meta"><span class="task-cat">['📚 Study']</span><span class="task-due overdue">Due 2026-03-29</span><span class="task-badge badge-med">MEDIUM</span></div></div><button class="task-complete-btn" data-page-id="331ceab05e6d81faa5e6c2384e043353" title="Mark Done in Notion">✓</button></div>
         <!-- INJECT:TASKS_FULL:END -->
     </div>
   </div>
@@ -1121,576 +550,15 @@
 
     <div class="food-grid" id="food-grid">
       <!-- INJECT:FOOD:START -->
-      <div class="empty-state"><div class="empty-icon">🍜</div><div class="empty-msg">No food places saved yet — <span>send a Maps link to the bot</span>.</div></div>
-      <!-- INJECT:FOOD:END -->
+<div class="empty-state"><div class="empty-icon">🍜</div><div class="empty-msg">No food places saved yet — <span>send a Maps link to the bot</span>.</div></div>
+        <!-- INJECT:FOOD:END -->
     </div>
 
   </div>
 
 </main>
 
-<script>
-  // ── CLOCK ──
-  // ── CLOCK DIGIT FLIP ──────────────────────────────────────────
-  let _prevClockParts = ['','',''];
-  function updateClock() {
-    const now = new Date();
-    const parts = [
-      String(now.getHours()).padStart(2,'0'),
-      String(now.getMinutes()).padStart(2,'0'),
-      String(now.getSeconds()).padStart(2,'0'),
-    ];
-    const el = document.getElementById('clock');
-    // Build flip units on first run
-    if (!el.querySelector('.flip-unit')) {
-      el.innerHTML = parts.map((p,i) =>
-        `<span class="flip-unit" id="fu${i}"><span>${p}</span></span>${i<2?':':''}`
-      ).join('');
-      _prevClockParts = [...parts];
-      return;
-    }
-    parts.forEach((p, i) => {
-      if (p === _prevClockParts[i]) return;
-      const fu = document.getElementById('fu' + i);
-      fu.querySelector('span').textContent = p;
-      fu.classList.remove('flipping');
-      void fu.offsetWidth;
-      fu.classList.add('flipping');
-      setTimeout(() => fu.classList.remove('flipping'), 200);
-    });
-    _prevClockParts = [...parts];
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-
-  // ── SYNC TIME ──
-  const syncEl = document.getElementById('sync-time');
-  let syncSecs = 0;
-  setInterval(() => {
-    syncSecs++;
-    syncEl.textContent = syncSecs < 60 ? syncSecs + 's ago' : Math.floor(syncSecs/60) + 'm ago';
-  }, 1000);
-
-  // ── COUNTDOWN ──
-  let total = 6*3600+42*60+17;
-  setInterval(() => {
-    total = total > 0 ? total-1 : 8*3600;
-    const h = String(Math.floor(total/3600)).padStart(2,'0');
-    const m = String(Math.floor((total%3600)/60)).padStart(2,'0');
-    const s = String(total%60).padStart(2,'0');
-    const el = document.getElementById('countdown');
-    if(el) el.textContent = h+':'+m+':'+s;
-  }, 1000);
-
-  // ── TAB SWITCHING ──
-  function staggerTabCards(panel) {
-    const selectors = [
-      '.task-full-item', '.project-full-card', '.food-card', '.research-item',
-      '.kpi-section', '.content-card', '.stat-card', '.agent-card',
-      '.event-item', '.pipeline-row',
-    ];
-    panel.querySelectorAll(selectors.join(',')).forEach((item, i) => {
-      item.classList.remove('stagger-enter');
-      void item.offsetWidth; // force reflow to restart animation
-      item.style.animationDelay = `${i * 60}ms`;
-      item.classList.add('stagger-enter');
-    });
-  }
-
-  const TAB_ORDER = ['overview','tasks','calendar','kpi','projects','agents','pipeline','content','research','food'];
-  let _lastTabIndex = 0;
-
-  function switchTab(name, el) {
-    const newIndex = TAB_ORDER.indexOf(name);
-    const direction = newIndex >= _lastTabIndex ? 'slide-left' : 'slide-right';
-    _lastTabIndex = newIndex;
-
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active','slide-left','slide-right'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    const panel = document.getElementById('tab-' + name);
-    panel.classList.add('active', direction);
-    el.classList.add('active');
-    try { localStorage.setItem('edith-tab', name); } catch(e) {}
-
-    // Stagger card entrances
-    staggerTabCards(panel);
-
-    // Animate progress bars
-    panel.querySelectorAll('.prog-fill, .kpi-fill').forEach(bar => {
-      const target = bar.style.width;
-      bar.style.transition = 'none';
-      bar.style.width = '0%';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          bar.style.transition = '';
-          bar.style.width = target;
-        });
-      });
-    });
-  }
-
-  // ── RESTORE LAST TAB ON LOAD ──
-  (function restoreTab() {
-    try {
-      const saved = localStorage.getItem('edith-tab');
-      if (!saved) return;
-      const panel = document.getElementById('tab-' + saved);
-      if (!panel) return;
-      const btn = document.querySelector(`.nav-tab[onclick*="'${saved}'"]`);
-      if (!btn) return;
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      panel.classList.add('active');
-      btn.classList.add('active');
-    } catch(e) {}
-  })();
-
-  // ── TASK TOGGLE + AUTO-SORT ──
-  function bindTaskToggle(item) {
-    item.addEventListener('click', () => {
-      const check = item.querySelector('.task-check');
-      const text  = item.querySelector('.task-text');
-      const list  = item.parentElement;
-
-      check.classList.toggle('done');
-      text.classList.toggle('done');
-
-      if (check.classList.contains('done')) {
-        // Fade out briefly, then move to bottom
-        item.style.opacity = '0.4';
-        setTimeout(() => {
-          item.style.opacity = '';
-          list.appendChild(item);
-        }, 180);
-      } else {
-        // Move back above the first done item
-        item.style.opacity = '0.4';
-        setTimeout(() => {
-          item.style.opacity = '';
-          const firstDone = [...list.querySelectorAll('.task-item')]
-            .find(i => i !== item && i.querySelector('.task-check').classList.contains('done'));
-          if (firstDone) list.insertBefore(item, firstDone);
-          else list.prepend(item);
-        }, 180);
-      }
-    });
-  }
-  document.querySelectorAll('.task-item').forEach(bindTaskToggle);
-
-  // ── EMPTY STATES ──
-  function checkEmptyStates() {
-    const sections = [
-      { container: '#tasks-card',    child: '.task-item',         icon: '📋', msg: "Ow, today's empty — <span>no tasks lined up</span>." },
-      { container: '#calendar-card', child: '.event-item',        icon: '📅', msg: "Nothing scheduled — <span>enjoy the free time</span>." },
-      { container: '#projects-card', child: '.project-row',       icon: '🚀', msg: "No active projects — <span>clean slate</span>." },
-      { container: '#tab-content',   child: '.content-full-card', icon: '✍️', msg: "No content pieces yet — <span>ideas incoming</span>." },
-      { container: '#tab-research',  child: '.research-item',     icon: '🔍', msg: "No research saved — <span>run a query above</span>." },
-    ];
-    sections.forEach(({ container, child, icon, msg }) => {
-      const el = document.querySelector(container);
-      if (!el) return;
-      if (el.querySelectorAll(child).length === 0 && !el.querySelector('.empty-state')) {
-        const div = document.createElement('div');
-        div.className = 'empty-state';
-        div.innerHTML = `<div class="empty-icon">${icon}</div><div class="empty-msg">${msg}</div>`;
-        el.appendChild(div);
-      }
-    });
-  }
-  checkEmptyStates();
-
-  // ── TASKS FULL PAGE FILTER ──
-  function filterTasks(filter, btn) {
-    document.querySelectorAll('#tab-tasks .filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('#tasks-full-list .task-full-item').forEach(item => {
-      const pri  = (item.dataset.priority || '').toLowerCase();
-      const done = item.dataset.done === 'true';
-      let show = false;
-      if (filter === 'all')    show = true;
-      if (filter === 'high')   show = pri === 'high' && !done;
-      if (filter === 'medium') show = pri === 'medium' && !done;
-      if (filter === 'low')    show = pri === 'low' && !done;
-      if (filter === 'done')   show = done;
-      if (filter === 'pending') show = !done;
-      item.style.display = show ? '' : 'none';
-    });
-  }
-
-  // ── TASKS FULL PAGE STATS ──
-  function updateTaskStats() {
-    const items   = document.querySelectorAll('#tasks-full-list .task-full-item');
-    const total   = items.length;
-    const done    = [...items].filter(i => i.dataset.done === 'true').length;
-    const pending = total - done;
-    const high    = [...items].filter(i => i.dataset.priority === 'high' && i.dataset.done !== 'true').length;
-    const ts = document.getElementById('tstat-total');
-    const tp = document.getElementById('tstat-pending');
-    const th = document.getElementById('tstat-high');
-    const td = document.getElementById('tstat-done');
-    if (ts) ts.textContent = total;
-    if (tp) tp.textContent = pending;
-    if (th) th.textContent = high;
-    if (td) td.textContent = done;
-  }
-  updateTaskStats();
-
-  // ── TASK FULL ITEM TOGGLE ──
-  function bindTaskFullToggle(item) {
-    item.addEventListener('click', () => {
-      const check = item.querySelector('.task-full-check');
-      const name  = item.querySelector('.task-full-name');
-      check.classList.toggle('done');
-      name.classList.toggle('done');
-      item.dataset.done = check.classList.contains('done') ? 'true' : 'false';
-      item.style.opacity = '0.4';
-      setTimeout(() => { item.style.opacity = ''; updateTaskStats(); }, 180);
-    });
-  }
-  document.querySelectorAll('#tasks-full-list .task-full-item').forEach(bindTaskFullToggle);
-
-  // ── PROJECTS FULL PAGE FILTER ──
-  function filterProjects(filter, btn) {
-    const row = btn.closest('.filter-row');
-    row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('#projects-full-list .project-full-card').forEach(card => {
-      const status = (card.dataset.status || '').toLowerCase();
-      const show = filter === 'all' || status === filter.toLowerCase();
-      card.style.display = show ? '' : 'none';
-    });
-  }
-
-  // ── CALENDAR FILTER ──
-  function _parseDateFromCalHeader(group) {
-    // Prefer data-date attribute (set by new sync code)
-    const dateStr = group.dataset.date;
-    if (dateStr) return new Date(dateStr + 'T00:00:00');
-    // Fallback: parse from header text (e.g. "WEDNESDAY, APRIL 01")
-    // NOTE: "TODAY" headers without data-date are stale — return null so
-    //       they only show in 'all' view and don't collide with date-labeled groups.
-    const hdr = (group.querySelector('.cal-day-header') || {}).textContent || '';
-    const txt = hdr.trim();
-    const MONTHS = {JANUARY:0,FEBRUARY:1,MARCH:2,APRIL:3,MAY:4,JUNE:5,
-                    JULY:6,AUGUST:7,SEPTEMBER:8,OCTOBER:9,NOVEMBER:10,DECEMBER:11};
-    const m = txt.match(/[A-Z]+,\s+([A-Z]+)\s+(\d+)/);
-    if (m && MONTHS[m[1]] !== undefined) {
-      return new Date(new Date().getFullYear(), MONTHS[m[1]], parseInt(m[2]));
-    }
-    return null; // "TODAY" header with no data-date = stale, can't trust the date
-  }
-
-  function filterCalendar(view, btn) {
-    document.querySelectorAll('#tab-calendar .filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    // Start of week = Monday
-    const dow = now.getDay(); // 0=Sun
-    const diffToMon = (dow === 0) ? -6 : 1 - dow;
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() + diffToMon);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-
-    document.querySelectorAll('#tab-calendar .cal-day-group').forEach(group => {
-      const d = _parseDateFromCalHeader(group);
-      // null = stale group with no parseable date (e.g. "TODAY" header without data-date)
-      // Show only in 'all' view; hide in filtered views to avoid ghost duplicates
-      if (!d) { group.style.display = view === 'all' ? '' : 'none'; return; }
-      if (view === 'all') {
-        group.style.display = '';
-      } else if (view === 'today') {
-        group.style.display = d.toDateString() === now.toDateString() ? '' : 'none';
-      } else if (view === 'week') {
-        group.style.display = (d >= weekStart && d <= weekEnd) ? '' : 'none';
-      }
-    });
-
-    // Show empty message if nothing visible
-    const calInject = document.querySelector('#tab-calendar');
-    const visible = calInject ? [...calInject.querySelectorAll('.cal-day-group')].filter(g => g.style.display !== 'none') : [];
-    const existing = calInject ? calInject.querySelector('.cal-empty-filter') : null;
-    if (visible.length === 0 && calInject) {
-      if (!existing) {
-        const msg = document.createElement('div');
-        msg.className = 'empty-state cal-empty-filter';
-        msg.innerHTML = `<div class="empty-icon">📅</div><div class="empty-msg">No events for <span>${view === 'today' ? 'today' : 'this week'}</span>.</div>`;
-        calInject.appendChild(msg);
-      }
-    } else if (existing) {
-      existing.remove();
-    }
-  }
-
-  // ── AUTO-POPULATE: Tasks tab from Overview task card ──
-  function autoPopulateTasksFull() {
-    const list = document.getElementById('tasks-full-list');
-    if (!list) return;
-    // Only run if the dedicated tab hasn't been filled by sync
-    const hasRealData = list.querySelector('.task-full-item');
-    if (hasRealData) return;
-
-    const sourceItems = document.querySelectorAll('#tasks-card .task-item');
-    if (!sourceItems.length) return;
-
-    list.innerHTML = '';
-    sourceItems.forEach(item => {
-      const check  = item.querySelector('.task-check');
-      const textEl = item.querySelector('.task-text');
-      const badge  = item.querySelector('.task-badge');
-      if (!textEl) return;
-
-      const isDone  = check && check.classList.contains('done');
-      const name    = textEl.textContent.trim();
-      let priority  = 'low';
-      let badgeCls  = 'badge-low';
-      if (badge) {
-        const bc = badge.className;
-        if (bc.includes('badge-high')) { priority = 'high'; badgeCls = 'badge-high'; }
-        else if (bc.includes('badge-med')) { priority = 'medium'; badgeCls = 'badge-med'; }
-        else { priority = 'low'; badgeCls = 'badge-low'; }
-      }
-
-      const el = document.createElement('div');
-      el.className = 'task-full-item';
-      el.dataset.priority = priority;
-      el.dataset.done = String(isDone);
-      el.innerHTML =
-        `<div class="task-full-check${isDone ? ' done' : ''}"></div>` +
-        `<div class="task-full-body">` +
-        `<div class="task-full-name${isDone ? ' done' : ''}">${name}</div>` +
-        `<div class="task-full-meta"><span class="task-badge ${badgeCls}">${priority.toUpperCase()}</span></div>` +
-        `</div>`;
-      bindTaskFullToggle(el);
-      list.appendChild(el);
-    });
-    updateTaskStats();
-  }
-  autoPopulateTasksFull();
-
-  // ── AUTO-POPULATE: Projects tab from Pipeline project cards ──
-  function autoPopulateProjectsFull() {
-    const list = document.getElementById('projects-full-list');
-    if (!list) return;
-    if (list.querySelector('.project-full-card')) return; // already synced
-
-    const sourceRows = document.querySelectorAll('#projects-card .project-row');
-    if (!sourceRows.length) return;
-
-    list.innerHTML = '';
-    const COLORS = [
-      ['var(--amber-dim)', 'var(--amber)'],
-      ['#2a6b8a', 'var(--blue)'],
-      ['#6b2a8a', 'var(--purple)'],
-      ['#1a6b3a', 'var(--green)'],
-    ];
-    const BADGE_MAP = {
-      'IN PROGRESS': ['badge-inprog', 'IN PROGRESS'],
-      'PLANNING':    ['badge-plan',   'PLANNING'],
-      'DONE':        ['badge-done',   'DONE'],
-      'BLOCKED':     ['badge-block',  'BLOCKED'],
-    };
-
-    sourceRows.forEach((row, i) => {
-      const nameEl    = row.querySelector('.project-name');
-      const metaEl    = row.querySelector('.project-meta');
-      const progValEl = row.querySelector('.prog-val');
-      const progFill  = row.querySelector('.prog-fill');
-      const badgeEl   = row.querySelector('.proj-badge');
-      if (!nameEl) return;
-
-      const name       = nameEl.textContent.trim();
-      const meta       = metaEl ? metaEl.textContent.trim() : '';
-      const progVal    = progValEl ? progValEl.textContent.trim() : '0%';
-      const progNum    = parseInt(progVal) || 0;
-      const badgeTxt   = badgeEl ? badgeEl.textContent.trim() : 'PLANNING';
-      const [bCls, bLbl] = BADGE_MAP[badgeTxt] || ['badge-plan', badgeTxt];
-      const [cStart, cEnd] = COLORS[i % COLORS.length];
-
-      // Extract status for data-status filtering
-      const statusMap = { 'IN PROGRESS': 'in progress', 'PLANNING': 'planning', 'DONE': 'done', 'BLOCKED': 'blocked' };
-      const dataStatus = statusMap[badgeTxt] || badgeTxt.toLowerCase();
-
-      const card = document.createElement('div');
-      card.className = 'project-full-card';
-      card.dataset.status = dataStatus;
-      card.innerHTML =
-        `<div class="project-full-header">` +
-        `<div><div class="project-full-title">${name}</div>` +
-        (meta ? `<div class="project-full-desc">${meta}</div>` : '') +
-        `</div><div class="proj-badge ${bCls}">${bLbl}</div></div>` +
-        `<div class="project-full-body"><div>` +
-        `<div class="prog-header"><span class="prog-label">Progress</span><span class="prog-val">${progVal}</span></div>` +
-        `<div class="prog-bar"><div class="prog-fill" style="width:${progNum}%;background:linear-gradient(90deg,${cStart},${cEnd})"></div></div>` +
-        `</div></div>`;
-      list.appendChild(card);
-    });
-  }
-  autoPopulateProjectsFull();
-
-  // ── AUTO-POPULATE: KPI tab from Overview KPI digest card ──
-  function autoPopulateKpiFull() {
-    const kpiTab = document.getElementById('tab-kpi');
-    if (!kpiTab) return;
-    // Only if there's no real kpi-week-card yet
-    if (kpiTab.querySelector('.kpi-week-card')) return;
-
-    const sourceRows = document.querySelectorAll('#kpi-digest-card .kpi-row');
-    if (!sourceRows.length) return;
-
-    // Remove placeholder
-    const placeholder = kpiTab.querySelector('.empty-state');
-    if (placeholder) placeholder.remove();
-
-    const injectZone = kpiTab.querySelector('#tab-kpi > *:last-child') || kpiTab;
-
-    // Build a single "current week" card from the overview data
-    const card = document.createElement('div');
-    card.className = 'kpi-week-card';
-
-    let miniGrid = '<div class="kpi-week-grid">';
-    let barsHtml = '';
-
-    sourceRows.forEach(row => {
-      const label = row.querySelector('.kpi-label');
-      const val   = row.querySelector('.kpi-val');
-      const fill  = row.querySelector('.kpi-fill');
-      if (!label || !val) return;
-      const lbl = label.textContent.trim();
-      const v   = val.textContent.trim();
-      const w   = fill ? (fill.style.width || '0%') : '0%';
-      miniGrid += `<div class="kpi-mini-stat"><div class="kpi-mini-val">${v}</div><div class="kpi-mini-lbl">${lbl.toUpperCase()}</div></div>`;
-      barsHtml += `<div class="kpi-row"><div class="kpi-header"><span class="kpi-label">${lbl}</span><span class="kpi-val">${v}</span></div><div class="kpi-bar"><div class="kpi-fill" style="width:${w}"></div></div></div>`;
-    });
-    miniGrid += '</div>';
-
-    const now = new Date();
-    const weekLabel = `WEEK OF ${now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}).toUpperCase()}`;
-    card.innerHTML =
-      `<div class="kpi-week-header"><div class="kpi-week-title">${weekLabel}</div><div class="kpi-week-badge kpi-rating-average">THIS WEEK</div></div>` +
-      miniGrid + barsHtml;
-
-    // Insert inside the inject zone
-    const injectEnd = kpiTab.innerHTML.indexOf('<!-- INJECT:KPI_FULL:END -->');
-    if (injectEnd !== -1) {
-      kpiTab.querySelector('[id]') ; // no-op — just use appendChild as fallback
-    }
-    kpiTab.appendChild(card);
-  }
-  autoPopulateKpiFull();
-
-  // ── RESEARCH SEARCH (cosmetic) ──
-  function runSearch() {
-    const q = document.querySelector('.search-input').value.trim();
-    if(q) alert('E.D.I.T.H Research Agent\n\nQuery: "' + q + '"\n\nConnect your ANTHROPIC_API_KEY to run live research.\nSee edith_skills.py → python edith_skills.py research');
-  }
-  function filterFood(status) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('onclick') === `filterFood('${status}')`);
-    });
-    document.querySelectorAll('#food-grid .food-card').forEach(card => {
-      if (status === 'all') { card.style.display = ''; return; }
-      const badge = card.querySelector('.food-badge');
-      if (!badge) { card.style.display = 'none'; return; }
-      card.style.display = badge.textContent.trim().toLowerCase() === status.toLowerCase() ? '' : 'none';
-    });
-  }
-
-  document.querySelector('.search-btn').addEventListener('click', runSearch);
-  document.querySelector('.search-input').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') runSearch();
-  });
-
-  // ── STAT COUNTER COUNT-UP ────────────────────────────────────
-  function countUp(el, duration) {
-    const raw = el.textContent.trim();
-    if (raw.includes('/')) {
-      const [a, b] = raw.split('/').map(Number);
-      if (isNaN(a) || isNaN(b)) return;
-      let start = null;
-      (function step(ts) {
-        if (!start) start = ts;
-        const p = Math.min((ts - start) / duration, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = `${Math.round(a * ease)}/${Math.round(b * ease)}`;
-        if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
-      })(performance.now());
-      return;
-    }
-    const target = parseFloat(raw);
-    if (isNaN(target)) return;
-    const decimals = (raw.split('.')[1] || '').length;
-    let start = null;
-    (function step(ts) {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      el.textContent = (target * ease).toFixed(decimals);
-      if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
-    })(performance.now());
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      document.querySelectorAll('#tab-overview .card-value').forEach(el => countUp(el, 1200));
-    }, 400);
-  });
-
-  // ── TASK 10: MORNING BRIEF TYPEWRITER ───────────────────────
-  window.addEventListener('DOMContentLoaded', () => {
-    const el = document.querySelector('.brief-message');
-    if (!el) return;
-    setTimeout(() => {
-      const full = el.innerHTML;
-      el.innerHTML = '';
-      const cursor = document.createElement('span');
-      cursor.style.cssText = 'border-right:2px solid var(--amber);margin-left:1px;animation:blink 0.7s infinite;';
-      el.appendChild(cursor);
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i < full.length) {
-          cursor.insertAdjacentHTML('beforebegin', full[i++]);
-        } else {
-          clearInterval(interval);
-          setTimeout(() => cursor.remove(), 1200);
-        }
-      }, 18);
-    }, 900);
-  });
-
-  // ── TASK 14: NAV TAB RIPPLE ──────────────────────────────────
-  document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const r = document.createElement('span');
-      r.className = 'ripple';
-      const rect = btn.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
-      btn.appendChild(r);
-      setTimeout(() => r.remove(), 500);
-    });
-  });
-
-  // ── HUD BOOT SEQUENCE ────────────────────────────────────────
-  (function bootSequence() {
-    const overlay = document.getElementById('boot-overlay');
-    if (!overlay) return;
-    try {
-      if (sessionStorage.getItem('edith-booted')) {
-        overlay.style.display = 'none';
-        return;
-      }
-      sessionStorage.setItem('edith-booted', '1');
-    } catch(e) {}
-    setTimeout(() => {
-      overlay.classList.add('hidden');
-      setTimeout(() => overlay.remove(), 700);
-    }, 2500);
-  })();
-</script>
+<script src="/static/edith.js"></script>
 
 </body>
 <
