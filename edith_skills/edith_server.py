@@ -340,12 +340,12 @@ class EdithHandler(BaseHTTPRequestHandler):
 # ── ENTRY POINT ───────────────────────────────────────────────────────────────
 
 def main():
+    global PORT
     import argparse
     parser = argparse.ArgumentParser(description="E.D.I.T.H local server")
     parser.add_argument("--port", type=int, default=PORT, help="Port to listen on (default: 5000)")
     args = parser.parse_args()
 
-    global PORT
     PORT = args.port
 
     server = HTTPServer(("127.0.0.1", PORT), EdithHandler)
