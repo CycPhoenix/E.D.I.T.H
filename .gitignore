@@ -6,6 +6,7 @@
 
 # ── Runtime State ─────────────────────────────────────────────────────────────
 .edith_discord_state.json
+edith_skills/.edith_discord_state.json
 *.state.json
 
 # ── Python ────────────────────────────────────────────────────────────────────
@@ -22,13 +23,23 @@ env/
 ENV/
 
 # ── Private Code ──────────────────────────────────────────────────────────────
-# Personal bot logic, Notion workspace structure, and notification credentials.
-# Architecture files (edith_sync, edith_builders, edith_calendar) are public.
+# Bot logic, Notion workspace, notification credentials.
+# Public: edith_sync, edith_builders, edith_calendar, edith_food, edith_server
 edith_skills/edith_telegram_bot.py
 edith_skills/edith_notify.py
 edith_skills/edith_notion.py
 edith_skills/edith_skills.py
 edith_voice_agent/edith_voice_agent.py
+
+# ── Private Docs & Plans ──────────────────────────────────────────────────────
+# Contains Notion DB IDs, private code snippets, personal session context.
+FOOD_SAVER_PLAN.md
+edith_skills/FOOD_SAVER_PRIVATE_SNIPPETS.md
+EDITH_SESSION_LOG.md
+WIP.md
+AGENTS_PLAN.md
+_note.md
+_*.md
 
 # ── Dev / Diagnostic Tools ────────────────────────────────────────────────────
 edith_skills/test_ics.py
