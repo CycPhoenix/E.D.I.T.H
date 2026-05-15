@@ -29,6 +29,7 @@ from edith_builders import (
     build_deadlines, build_pipeline_health,
 )
 from edith_calendar import _fetch_ics, build_calendar, build_overview_calendar
+from edith_food import build_food_tab
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 NOTION_TOKEN    = os.getenv("NOTION_TOKEN", "")
@@ -37,6 +38,7 @@ PROJECT_DB      = os.getenv("NOTION_PROJECT_DB", "0c2fa008b3aa4d5195e17ec11d9ffa
 KPI_DB          = os.getenv("NOTION_KPI_DB",     "7339d0186ba44062b9de72e771131fad")
 CONTENT_DB      = os.getenv("NOTION_CONTENT_DB", "448f9f35c8c7441a9683f72fb13a2650")
 RESEARCH_DB     = os.getenv("NOTION_RESEARCH_DB","0d96b2834ff8466ca67e04d4a1f6b984")
+FOOD_DB         = os.getenv("NOTION_FOOD_DB", "")
 OUTLOOK_ICS_URL = os.getenv("OUTLOOK_ICS_URL",  "")
 
 DASHBOARD = Path(__file__).parent.parent / "edith-command-center.html"
@@ -97,8 +99,9 @@ def sync():
     kpis     = notion_query(KPI_DB)
     content  = notion_query(CONTENT_DB)
     research = notion_query(RESEARCH_DB)
+    food     = notion_query(FOOD_DB) if FOOD_DB else []
 
-    print(f"   ↳ {len(tasks)} tasks · {len(projects)} projects · {len(kpis)} KPIs · {len(content)} content · {len(research)} research")
+    print(f"   ↳ {len(tasks)} tasks · {len(projects)} projects · {len(kpis)} KPIs · {len(content)} content · {len(research)} research · {len(food)} food places")
 
     # ── Derived stats ──
     priorities, tasks_due, deadlines, active_projects = compute_brief(tasks, projects)
@@ -128,6 +131,12 @@ def sync():
     html = inject(html, "TASKS_FULL",      build_tasks_full(tasks))
     html = inject(html, "KPI_FULL",        build_kpi_full(kpis))
     html = inject(html, "PROJECTS_FULL",   build_projects_full(projects))
+
+    # ── Food Places ──
+    if FOOD_DB:
+        html = inject(html, "FOOD", build_food_tab(food))
+    else:
+        print("  ⚠  NOTION_FOOD_DB not set — skipping Food tab sync")
 
     # ── Calendar — fetch ICS once, share between both calendar sections ──
     if OUTLOOK_ICS_URL:
