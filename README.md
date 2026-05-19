@@ -8,41 +8,53 @@ A personal AI OS built around a single-file HTML dashboard that syncs live data 
 
 ## Dashboard
 
-`edith-command-center.html` — open directly in a browser, no server needed.
-
-7 tabs, all data-driven via Notion sync:
+10-tab HUD served via a local Python server (`edith_server.py`). Run the server first, then open `http://localhost:5000` in a browser.
 
 | Tab | What it shows |
 |---|---|
 | Overview | Morning brief, stat cards, today's calendar, task preview, content pipeline mini, deadlines |
+| Tasks | Full task list with priority/status filters, live completion toggle, quick-add form |
 | Calendar | 14-day Outlook calendar with ALL / THIS WEEK / TODAY filter |
-| Tasks | Full task list with priority/status filters and live completion toggle |
-| Pipeline | Active projects with progress bars + KPI tracker |
-| Content | Full content pipeline (Idea → Scripting → Filming → Editing → Posted) |
+| KPI | Weekly KPI tracker with inline logging (click to edit) |
+| Projects | Active projects with progress bars |
+| Agents | AI agent status panel — Scout, Atlas, Muse |
+| Pipeline | Content pipeline (Idea → Scripting → Filming → Editing → Posted) |
+| Content | Full content view |
 | Research | Study hub / research tracker |
 | Food | Saved restaurants & cafes — status, would return, notes, Maps link |
-| Agents | Agent status panel (in development) |
+
+---
+
+## How to Run
+
+**1. Start the server**
+```bash
+cd edith_skills
+python edith_server.py
+```
+
+**2. Open the dashboard**
+
+Go to `http://localhost:5000` in your browser.
+
+**3. Keep data live (optional)**
+```bash
+python edith_sync.py --watch        # sync every 5 minutes
+python edith_sync.py --watch --interval 600   # custom interval (seconds)
+```
 
 ---
 
 ## How Sync Works
 
-```
+```bash
 python edith_sync.py
 ```
 
-Queries 5 Notion databases in parallel, fetches the Outlook ICS feed, builds HTML for each dashboard section, then rewrites the file using `<!-- INJECT:TAG:START/END -->` markers so each section updates independently.
+Queries 6 Notion databases in parallel, fetches the Outlook ICS feed, builds HTML for each dashboard section, then rewrites the file using `<!-- INJECT:TAG:START/END -->` markers so each section updates independently.
 
-**11 injected sections per sync:**
+**Injected sections per sync:**
 `TASKS` · `PROJECTS` · `KPI` · `CONTENT` · `RESEARCH` · `FOOD` · `CONTENT_MINI` · `DEADLINES` · `PIPELINE_HEALTH` · `TASKS_FULL` · `KPI_FULL` · `PROJECTS_FULL` · `CALENDAR` · `OVERVIEW_CALENDAR`
-
-**Stat counters** (tasks done/total, active projects, content in progress, avg project progress, due badges) are updated via element ID injection alongside the HTML sections.
-
-```bash
-python edith_sync.py              # sync once
-python edith_sync.py --watch      # sync every 5 minutes
-python edith_sync.py --watch --interval 600   # custom interval (seconds)
-```
 
 ---
 
@@ -50,18 +62,63 @@ python edith_sync.py --watch --interval 600   # custom interval (seconds)
 
 ```
 E.D.I.T.H/
-├── edith-command-center.html      # Dashboard — open in browser
+├── edith-command-center.html      # Dashboard HTML shell (slim — no inline CSS/JS)
+├── edith_static/
+│   ├── edith.css                  # All dashboard styles
+│   └── edith.js                   # All dashboard JS
 ├── edith_skills/
 │   ├── edith_sync.py              # Orchestrator: Notion queries + ICS fetch + inject
 │   ├── edith_builders.py          # HTML builders for every dashboard section
 │   ├── edith_calendar.py          # ICS fetch (Outlook-compatible), parse, calendar HTML
+│   ├── edith_food.py              # Food Places HTML builder
+│   ├── edith_server.py            # stdlib HTTP server — serves dashboard + Notion write-back API
+│   ├── edith_agents.py            # AI agents — Orchestrator, Scout, Atlas, Muse
 │   ├── .env.example               # Environment variable template
 │   └── SETUP.md                   # Setup guide
 └── edith_voice_agent/
     └── SETUP.md
 ```
 
-> Telegram bot, Notion write actions, Discord/voice notification logic, and voice agent are in a private repository.
+> Telegram bot, Notion write actions, and notification logic are in a private repository.
+
+---
+
+## edith_server.py
+
+Local stdlib HTTP server (no Flask). Key endpoints:
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/` | GET | Serves the dashboard HTML |
+| `/static/*` | GET | Serves CSS + JS from `edith_static/` |
+| `/api/status` | GET | Alive check + last sync timestamp |
+| `/api/sync` | POST | Triggers `edith_sync.py` subprocess |
+| `/api/task/complete` | POST | PATCHes Notion task to Done |
+| `/api/task/create` | POST | Creates new task in Notion |
+| `/api/kpi/log` | POST | Logs KPI value to Notion |
+| `/api/pomodoro/log` | POST | Logs Pomodoro session to Notion |
+
+---
+
+## edith_agents.py
+
+AI agent layer. Runs locally via LM Studio or falls back to Claude API.
+
+- `Orchestrator` — routes messages to the right agent
+- `Scout` — web research, article summarisation
+- `Atlas` — CS/AI study companion, explain concepts, quiz mode (reads Obsidian vault)
+- `Muse` — content ideas, captions, reel scripts
+
+**Mode system:**
+
+| Mode | Active agents |
+|---|---|
+| `active` | Scout, Atlas, Muse |
+| `focus` | Scout, Atlas |
+| `overnight` | None (dormant) |
+| `standby` | None (dormant) |
+
+Run via CLI: `python edith_agents.py`
 
 ---
 
@@ -82,19 +139,17 @@ Builds HTML for every section from raw Notion API responses. Key functions:
 
 ## edith_food.py
 
-Builds HTML for the Food Places tab from Notion page data. Key functions:
+Builds HTML for the Food Places tab from Notion page data.
 
 - `build_food_tab` — food place cards with status badges, cuisine emoji, would-return indicator, notes snippet, Maps link button
-- `build_food_stats` — returns stats dict (total, visited, want_to_try, regulars, would_return) for optional Overview use
-
-Shared helpers: `prop()` (safe Notion property extractor), `strip_emoji()`, `norm_pct()`, `update_id()`, `esc()`.
+- `build_food_stats` — returns stats dict (total, visited, want_to_try, regulars, would_return) for Overview use
 
 ---
 
 ## edith_calendar.py
 
-- `_fetch_ics(url)` — fetches Outlook ICS with browser User-Agent (required to bypass Office 365 bot detection), validates `BEGIN:VCALENDAR` in response
-- `_parse_ics_events(ics_text, days_ahead)` — parses VEVENT blocks into event dicts, deduplicates events that appear across multiple subscribed calendars (same title + time = one entry)
+- `_fetch_ics(url)` — fetches Outlook ICS with browser User-Agent (required to bypass Office 365 bot detection)
+- `_parse_ics_events(ics_text, days_ahead)` — parses VEVENT blocks, deduplicates events across subscribed calendars
 - `build_calendar(ics_text)` — 14-day calendar HTML with `data-date` attributes for JS filtering
 - `build_overview_calendar(ics_text)` — compact today-only event list for the Overview card
 
@@ -107,17 +162,19 @@ Shared helpers: `prop()` (safe Notion property extractor), `strip_emoji()`, `nor
 | Task Manager | Personal tasks with priority, status, category, due date |
 | Projects | Active projects with progress %, status, deadlines |
 | KPI Digest | Weekly KPI tracking across life areas |
-| Content Pipeline | Content ideas through to posted (Idea → Scripting → Filming → Editing → Posted) |
+| Content Pipeline | Content ideas through to posted |
 | Study Hub / Research | Research topics and study notes |
+| Food Places | Saved restaurants & cafes with Maps links |
 
 ---
 
 ## Setup
 
-**1. Install dependencies**
+**1. Clone and install dependencies**
 ```bash
-cd edith_skills
-pip install python-dotenv anthropic requests
+git clone <repo>
+cd E.D.I.T.H/edith_skills
+pip install -r requirements.txt
 ```
 
 **2. Configure environment**
@@ -126,14 +183,14 @@ cp .env.example .env
 # Fill in your keys
 ```
 
-**3. Run sync**
+**3. Start the server**
 ```bash
-python edith_sync.py
+python edith_server.py
 ```
 
 **4. Open dashboard**
 
-Open `edith-command-center.html` in a browser. Run `--watch` in a background terminal to keep it live.
+Go to `http://localhost:5000`
 
 ---
 
@@ -145,19 +202,21 @@ See `edith_skills/.env.example` for the full list. Core variables:
 |---|---|
 | `NOTION_TOKEN` | All Notion sync |
 | `OUTLOOK_ICS_URL` | Calendar tab + Overview calendar card |
-| `ANTHROPIC_API_KEY` | Telegram bot intent parsing + morning brief |
+| `ANTHROPIC_API_KEY` | Agent fallback (Claude API) |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot (private repo) |
-| `DISCORD_WEBHOOK_URL` | Online/offline status notifications (private repo) |
-| `ELEVENLABS_API_KEY` | Voice transcription (private repo) |
+| `DISCORD_WEBHOOK_URL` | Online/offline notifications (private repo) |
+| `OBSIDIAN_VAULT` | Atlas knowledge base (`E:/Brain`) |
 
 ---
 
 ## Roadmap
 
-- [ ] AI Agents — Scout (research), Muse (content), Atlas (study)
-- [ ] Orchestrator layer for natural language agent routing
-- [ ] Local inference via LM Studio on Mac Mini (replacing Claude API for agent tasks)
-- [ ] Agent mode switching — Active / Focus / Overnight / Standby
+- [x] AI Agents — Scout, Atlas, Muse + Orchestrator (`edith_agents.py`)
+- [x] Agent mode switching — Active / Focus / Overnight / Standby
+- [ ] Local inference via LM Studio — `unsloth/functiongemma-270m-it-GGUF` (Orchestrator) + `qwen/qwen3.5-9b` (agents)
+- [ ] Telegram → Agents wiring (all messages routed through Orchestrator)
+- [ ] Obsidian vault integration — Atlas reads from `E:/Brain`
+- [ ] Live Agents tab on dashboard
 
 ---
 
